@@ -1,0 +1,10 @@
+# Draft content
+drafts/
+*.draft.mdx
+archives/
+archive/
+archive-*.mdx
+
+# Node Modules
+node_modules
+.DS_Store

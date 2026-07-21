@@ -1,0 +1,103 @@
+---
+title: "Konfigurasi Wireless pada MikroTik"
+description: "Panduan lengkap melakukan konfigurasi antarmuka wireless pada MikroTik RouterOS sebagai Access Point dan Station."
+---
+
+## Pengenalan wireless MikroTik
+
+MikroTik RouterOS mendukung berbagai standar komunikasi wireless seperti 802.11a/b/g/n/ac. Perangkat MikroTik yang memiliki antarmuka wireless (seperti seri hAP, wAP, atau RB951) dapat dikonfigurasi dalam berbagai mode jaringan sesuai kebutuhan.
+
+Beberapa mode wireless yang umum digunakan:
+- **AP Bridge**: Berfungsi sebagai Access Point utama untuk melayani banyak *client*.
+- **Station**: Berfungsi sebagai *client* yang menerima koneksi dari sebuah Access Point.
+- **Bridge**: Digunakan untuk koneksi *point-to-point* antar dua perangkat router.
+
+Kamu akan menggunakan fitur ini ketika membuat jaringan *hotspot* WiFi, membangun koneksi nirkabel jarak jauh, atau sekadar memperluas jangkauan jaringan di laboratorium.
+
+## Konfigurasi sebagai Access Point (AP Bridge)
+
+Langkah pertama adalah membuat *security profile* (profil keamanan) untuk memberikan kata sandi pada jaringan WiFi yang akan dibuat. Setelah itu, kamu bisa mengaktifkan dan mengonfigurasi antarmuka `wlan1`.
+
+### Membuat security profile
+
+<Tabs>
+  <Tab title="Winbox">
+    1. Buka menu **Wireless** dari bilah sisi.
+    2. Pindah ke tab **Security Profiles**.
+    3. Klik tombol **+** (Add) untuk membuat profil baru.
+    4. Isi **Name** dengan nama profil, contohnya `profile1`.
+    5. Ubah **Mode** menjadi `dynamic keys`.
+    6. Centang opsi **WPA2 PSK** pada bagian **Authentication Types**.
+    7. Masukkan kata sandi WiFi pada kolom **WPA2 Pre-Shared Key**.
+    8. Klik **OK** untuk menyimpan profil.
+  </Tab>
+  <Tab title="CLI">
+    Jalankan perintah berikut di terminal:
+    ```bash
+    /interface wireless security-profiles add name=profile1 mode=dynamic-keys authentication-types=wpa2-psk wpa2-pre-shared-key=password123
+    ```
+  </Tab>
+</Tabs>
+
+### Mengaktifkan dan mengatur antarmuka wireless
+
+<Tabs>
+  <Tab title="Winbox">
+    1. Kembali ke menu **Wireless**, lalu pilih tab **WiFi Interfaces** atau **Interfaces**.
+    2. Klik dua kali pada antarmuka **wlan1**.
+    3. Pindah ke tab **Wireless**.
+    4. Ubah **Mode** menjadi `ap bridge`.
+    5. Atur **Band** ke `2GHz-B/G/N` (atau sesuaikan dengan kemampuan perangkat keras).
+    6. Isi **SSID** dengan nama jaringan WiFi yang kamu inginkan, misalnya `TKJ-LAB`.
+    7. Atur **Frequency** ke `auto` atau pilih *channel* tertentu untuk menghindari interferensi.
+    8. Pada bagian **Security Profile**, pilih `profile1` yang sudah dibuat sebelumnya.
+    9. Klik **OK**.
+    10. Pastikan antarmuka menyala. Jika ikonnya masih redup atau ada tanda silang (X), klik **wlan1** dan tekan tombol **Centang biru** (Enable) di bagian atas.
+  </Tab>
+  <Tab title="CLI">
+    Gunakan perintah berikut untuk mengonfigurasi dan menyalakan antarmuka:
+    ```bash
+    /interface wireless set wlan1 mode=ap-bridge band=2ghz-b/g/n ssid=TKJ-LAB security-profile=profile1 disabled=no
+    ```
+  </Tab>
+</Tabs>
+
+## Menambahkan alamat IP dan DHCP Server
+
+Setelah jaringan nirkabel memancarkan sinyal, perangkat *client* membutuhkan konfigurasi jaringan agar bisa terhubung ke internet atau perangkat lain. 
+
+Berikan alamat IP pada antarmuka `wlan1`:
+
+```bash
+/ip address add address=192.168.20.1/24 interface=wlan1
+```
+
+Selanjutnya, pasang layanan DHCP Server agar perangkat *client* mendapatkan alamat IP secara otomatis. Kamu bisa membaca panduan lengkapnya di halaman DHCP Server yang terkait.
+
+## Konfigurasi sebagai Station (Client WiFi)
+
+Selain sebagai pemancar, MikroTik juga dapat menangkap sinyal WiFi dan bertindak sebagai *client* menggunakan mode Station. Mode ini berguna ketika router mengambil sumber internet dari Access Point lain tanpa menggunakan kabel.
+
+Untuk menghubungkan router ke Access Point lain:
+
+1. Ubah **Mode** antarmuka `wlan1` menjadi `station`.
+2. Gunakan fitur *Scanner* untuk mencari jaringan yang tersedia.
+   - Di CLI, kamu bisa menjalankan perintah `/interface wireless scan wlan1`.
+3. Hubungkan ke SSID tujuan dan pastikan kamu menggunakan *security profile* dengan kata sandi yang cocok dengan Access Point tersebut.
+
+## Memantau perangkat yang terhubung
+
+Kamu bisa melihat daftar lengkap perangkat yang saat ini terhubung ke Access Point MikroTik melalui tabel registrasi. 
+
+Buka menu **Wireless** lalu pindah ke tab **Registration**. Di sana kamu akan melihat alamat MAC, kekuatan sinyal (TX/RX), dan durasi koneksi masing-masing *client*.
+
+Melalui CLI, jalankan perintah ini:
+```bash
+/interface wireless registration-table print
+```
+
+## Tips keamanan wireless
+
+- **Gunakan WPA2 atau WPA3**: Selalu gunakan standar enkripsi minimal WPA2-PSK. Jangan gunakan WEP karena sangat mudah dibobol.
+- **Sembunyikan SSID**: Jika jaringan digunakan khusus untuk staf atau *backbone*, opsi **Hide SSID** dapat diaktifkan agar tidak terlihat saat pemindaian normal.
+- **Gunakan Access List**: MikroTik memiliki fitur Access List untuk membatasi perangkat mana saja (berdasarkan alamat MAC) yang boleh terhubung ke jaringan WiFi.

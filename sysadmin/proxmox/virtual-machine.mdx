@@ -1,0 +1,82 @@
+---
+title: 'Membuat Virtual Machine di Proxmox VE'
+description: 'Panduan lengkap cara membuat dan mengkonfigurasi Virtual Machine (VM) di Proxmox VE.'
+---
+
+## Pengenalan VM di Proxmox
+
+Proxmox Virtual Environment (VE) menggunakan KVM (Kernel-based Virtual Machine) untuk menjalankan mesin virtual (VM). Setiap VM beroperasi dengan sistem operasi (OS) sendiri secara penuh dan terisolasi. Kamu bisa menjalankan berbagai jenis OS, seperti Linux, Windows, maupun BSD. Untuk membuat VM baru, kamu memerlukan file ISO installer dari OS yang ingin digunakan.
+
+## Persiapan sebelum membuat VM
+
+Sebelum membuat VM, kamu harus mengunggah file ISO installer ke dalam storage Proxmox.
+
+1. Buka antarmuka web Proxmox.
+2. Di panel kiri, perluas menu **Datacenter** dan pilih node kamu.
+3. Klik pada storage yang mendukung penyimpanan ISO, biasanya bernama **local**.
+4. Pilih menu **ISO Images** di panel tengah.
+5. Klik tombol **Upload** untuk mengunggah file ISO dari komputer kamu.
+6. Kamu juga bisa mengunduh file ISO langsung menggunakan URL dengan tombol **Download from URL**.
+
+> Beberapa contoh ISO yang sering digunakan adalah Debian, Ubuntu Server, atau Windows Server.
+
+## Cara membuat VM baru via Web UI
+
+Ikuti langkah-langkah berikut untuk membuat VM baru melalui antarmuka web Proxmox:
+
+1. Klik tombol **Create VM** di pojok kanan atas layar.
+2. Pada tab **General**:
+   - **Node**: Pilih node Proxmox tempat VM akan berjalan.
+   - **VM ID**: Biarkan nomor unik yang terisi secara otomatis.
+   - **Name**: Masukkan nama untuk VM (contoh: `debian-server`).
+3. Pada tab **OS**:
+   - **ISO Image**: Pilih file ISO yang sudah kamu unggah sebelumnya.
+   - **Guest OS Type**: Pilih tipe OS yang sesuai, misalnya **Linux** atau **Microsoft Windows**.
+4. Pada tab **System**:
+   - **BIOS**: Pilih **SeaBIOS** (untuk mode Legacy) atau **OVMF** (untuk mode UEFI).
+   - **Machine**: Pilih **Default (i440fx)** atau **q35** (disarankan jika kamu menggunakan PCIe passthrough).
+   - **SCSI Controller**: Gunakan **VirtIO SCSI Single** (direkomendasikan).
+   - **Qemu Agent**: Centang opsi ini jika kamu berencana menginstal `qemu-guest-agent` di dalam VM.
+5. Pada tab **Disks**:
+   - **Bus/Device**: Pilih **VirtIO Block** atau **SCSI** untuk performa terbaik.
+   - **Storage**: Pilih lokasi penyimpanan VM disk, biasanya **local-lvm**.
+   - **Disk Size**: Sesuaikan ukuran disk dengan kebutuhan OS (contoh: `32` GB).
+   - **Format**: Pilih **raw** atau **qcow2** sesuai dukungan storage.
+   - **Cache**: Pilih **Default (No Cache)** atau ubah ke **Write Back** untuk performa lebih baik.
+6. Pada tab **CPU**:
+   - **Sockets**: Biarkan nilai default `1`.
+   - **Cores**: Tentukan jumlah core CPU yang akan dialokasikan (contoh: `2`).
+   - **Type**: Ubah ke **host** untuk performa terbaik atau biarkan **kvm64** (default) untuk kompatibilitas migrasi antar node.
+7. Pada tab **Memory**:
+   - **Memory (MiB)**: Masukkan jumlah RAM yang dialokasikan (contoh: `2048` untuk 2GB).
+   - **Ballooning Device**: Centang untuk mengizinkan alokasi RAM secara dinamis, atau hapus centang untuk RAM dedicated.
+8. Pada tab **Network**:
+   - **Bridge**: Pilih interface bridge yang tersedia, biasanya **vmbr0**.
+   - **Model**: Gunakan **VirtIO** (direkomendasikan) atau **E1000**.
+9. Pada tab **Confirm**:
+   - Periksa kembali semua konfigurasi.
+   - Klik **Finish** untuk mulai membuat VM.
+
+## Menjalankan VM
+
+Setelah VM berhasil dibuat, kamu bisa menyalakannya dan memulai proses instalasi OS.
+
+1. Pilih VM yang baru dibuat dari panel kiri.
+2. Klik tombol **Start** di pojok kanan atas.
+3. Klik tombol **Console** untuk membuka jendela tampilan layar VM.
+4. Lakukan proses instalasi sistem operasi seperti biasa melalui konsol tersebut.
+
+## Post-install
+
+Setelah instalasi sistem operasi selesai, sangat disarankan untuk menginstal QEMU Guest Agent. Agen ini memungkinkan Proxmox untuk berkomunikasi lebih baik dengan VM, seperti melihat alamat IP atau melakukan proses shutdown dengan aman.
+
+### Menginstal QEMU Guest Agent di Linux
+
+Jalankan perintah berikut di dalam terminal VM Linux:
+
+```bash
+apt update
+apt install qemu-guest-agent
+```
+
+Pastikan kamu juga sudah mengaktifkan opsi Qemu Agent di pengaturan VM melalui menu **Options**.

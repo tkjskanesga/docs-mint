@@ -1,0 +1,131 @@
+---
+title: "Konfigurasi Internet dengan Static IP"
+description: "Panduan menghubungkan router MikroTik ke internet menggunakan metode alamat IP statis (Static IP)."
+---
+
+Pada materi ini, kamu akan belajar cara menghubungkan router MikroTik ke internet menggunakan metode Static IP (IP Statis). Metode ini digunakan ketika Internet Service Provider (ISP) memberikan alokasi IP publik atau privat yang tetap (tidak berubah-ubah) secara manual, bukan melalui DHCP.
+
+## Topologi Jaringan
+
+Berikut adalah topologi sederhana yang akan kita gunakan dalam panduan ini:
+
+```text
+Internet --- ISP --- [ether1] MikroTik [ether2] --- PC
+```
+
+- **ether1 (WAN):** Terhubung ke ISP dengan IP dari ISP (contoh: `10.10.10.2/30`), gateway ISP adalah `10.10.10.1`.
+- **ether2 (LAN):** Terhubung ke jaringan lokal/PC dengan IP `192.168.10.1/24`.
+
+## Langkah Konfigurasi
+
+Ikuti langkah-langkah di bawah ini secara berurutan. Kamu bisa menggunakan antarmuka grafis (Winbox) atau Command Line Interface (CLI).
+
+### 1. Memasang IP Address pada WAN dan LAN
+
+Pertama, berikan alamat IP pada interface yang mengarah ke ISP (WAN) dan interface yang mengarah ke jaringan lokal (LAN).
+
+<Tabs>
+  <Tab title="Winbox (GUI)">
+    1. Klik menu **IP** > **Addresses**.
+    2. Klik ikon tambah (**+**).
+    3. Masukkan `10.10.10.2/30` pada kolom **Address**.
+    4. Pilih `ether1` pada bagian **Interface**, lalu klik **OK**.
+    5. Klik ikon tambah (**+**) lagi.
+    6. Masukkan `192.168.10.1/24` pada kolom **Address**.
+    7. Pilih `ether2` pada bagian **Interface**, lalu klik **OK**.
+  </Tab>
+  <Tab title="Terminal (CLI)">
+    Buka terminal pada MikroTik dan ketikkan perintah berikut:
+    ```bash
+    ip address add address=10.10.10.2/30 interface=ether1
+    ip address add address=192.168.10.1/24 interface=ether2
+    ```
+  </Tab>
+</Tabs>
+
+### 2. Menambahkan Default Route (Gateway)
+
+Agar router tahu ke mana harus mengirimkan paket data yang menuju internet, kamu perlu menambahkan *default route* menuju gateway ISP.
+
+<Tabs>
+  <Tab title="Winbox (GUI)">
+    1. Klik menu **IP** > **Routes**.
+    2. Klik ikon tambah (**+**).
+    3. Pastikan kolom **Dst. Address** berisi `0.0.0.0/0`.
+    4. Masukkan `10.10.10.1` pada kolom **Gateway**.
+    5. Klik **OK**.
+  </Tab>
+  <Tab title="Terminal (CLI)">
+    ```bash
+    ip route add dst-address=0.0.0.0/0 gateway=10.10.10.1
+    ```
+  </Tab>
+</Tabs>
+
+### 3. Mengatur DNS Server
+
+DNS berfungsi untuk menerjemahkan nama domain (seperti google.com) menjadi IP Address. Kita akan menggunakan DNS publik dari Google.
+
+<Tabs>
+  <Tab title="Winbox (GUI)">
+    1. Klik menu **IP** > **DNS**.
+    2. Pada kolom **Servers**, masukkan `8.8.8.8`.
+    3. Klik tanda panah bawah di samping kolom tersebut untuk menambahkan baris baru, lalu masukkan `8.8.4.4`.
+    4. Centang kotak **Allow Remote Requests** agar router bisa menjadi DNS server untuk klien lokal.
+    5. Klik **OK**.
+  </Tab>
+  <Tab title="Terminal (CLI)">
+    ```bash
+    ip dns set servers=8.8.8.8,8.8.4.4 allow-remote-requests=yes
+    ```
+  </Tab>
+</Tabs>
+
+### 4. Menambahkan Rule NAT Masquerade
+
+Langkah ini sangat penting agar perangkat di jaringan lokal (LAN) bisa mengakses internet. NAT (Network Address Translation) akan menyamarkan IP lokal klien seolah-olah berasal dari IP publik/WAN router.
+
+<Tabs>
+  <Tab title="Winbox (GUI)">
+    1. Klik menu **IP** > **Firewall**.
+    2. Buka tab **NAT**, lalu klik ikon tambah (**+**).
+    3. Pada tab **General**, pilih `srcnat` pada kolom **Chain**.
+    4. Pilih `ether1` pada kolom **Out. Interface**.
+    5. Pindah ke tab **Action**, pilih `masquerade` pada kolom **Action**.
+    6. Klik **OK**.
+  </Tab>
+  <Tab title="Terminal (CLI)">
+    ```bash
+    ip firewall nat add chain=srcnat out-interface=ether1 action=masquerade
+    ```
+  </Tab>
+</Tabs>
+
+### 5. Verifikasi Koneksi
+
+Sekarang, pastikan router MikroTik sudah berhasil terhubung ke internet.
+
+<Tabs>
+  <Tab title="Winbox (GUI)">
+    1. Buka menu **New Terminal**.
+    2. Ketik `ping 8.8.8.8` dan tekan Enter. Pastikan hasilnya me-reply (terdapat indikator waktu dan status).
+    3. Hentikan ping dengan `Ctrl+C`.
+    4. Ketik `ping google.com` dan tekan Enter. Pastikan domain berhasil diterjemahkan dan me-reply.
+  </Tab>
+  <Tab title="Terminal (CLI)">
+    ```bash
+    ping 8.8.8.8
+    ping google.com
+    ```
+  </Tab>
+</Tabs>
+
+## Tips Troubleshooting
+
+Jika hasil ping mengalami *Timeout* atau gagal, periksa beberapa hal berikut:
+
+- **Kabel Fisik:** Pastikan kabel dari ISP benar-benar terhubung ke *port* `ether1`.
+- **Gateway ISP:** Coba ping ke gateway ISP (`ping 10.10.10.1`). Jika gagal, periksa kembali penulisan IP Address atau tanyakan pada penyedia layanan internet.
+- **Konfigurasi Route:** Pastikan tidak ada kesalahan ketik pada IP Gateway di menu **IP** > **Routes**. Status route harus *Active* (A) dan *Reachable*.
+- **Pengaturan DNS:** Jika `ping 8.8.8.8` berhasil namun `ping google.com` gagal, ini berarti pengaturan DNS kamu salah atau belum diterapkan.
+- **Klien Tidak Bisa Akses Internet:** Jika router bisa internetan tetapi PC di jaringan LAN tidak bisa, periksa kembali rule NAT Masquerade dan pastikan PC klien menggunakan IP MikroTik (`192.168.10.1`) sebagai Gateway dan DNS pada pengaturan jaringan (network settings) di PC.

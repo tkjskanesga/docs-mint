@@ -1,0 +1,69 @@
+---
+title: 'Pengenalan Proxmox VE dan Virtualisasi'
+description: 'Memahami konsep dasar Proxmox Virtual Environment, Virtual Machine, dan Hypervisor.'
+---
+
+## Pengenalan Proxmox VE
+
+Proxmox Virtual Environment (Proxmox VE) adalah platform manajemen virtualisasi server *open-source* tingkat *enterprise*. Dibangun berbasis Debian Linux, Proxmox VE memungkinkan Anda untuk mengelola Virtual Machine (KVM) dan Container (LXC) dalam satu platform yang terintegrasi. 
+
+Dengan Proxmox, kamu tidak perlu menginstal aplikasi tambahan di komputer klien, karena manajemen dilakukan sepenuhnya melalui antarmuka web GUI.
+
+Beberapa fitur unggulan Proxmox VE meliputi:
+- **Clustering**: Menggabungkan beberapa node server menjadi satu *cluster*.
+- **Live Migration**: Memindahkan VM yang sedang berjalan dari satu node ke node lain tanpa *downtime*.
+- **High Availability (HA)**: Menjamin layanan tetap berjalan jika terjadi kegagalan pada salah satu node.
+- **Backup Terintegrasi**: Fasilitas *backup* dan *restore* bawaan.
+- **ZFS & Ceph**: Mendukung teknologi penyimpanan *software-defined* modern.
+
+## Apa itu Virtual Machine?
+
+Virtual Machine (VM) adalah mesin virtual yang mengemulasi komputer fisik secara lengkap. VM ini seolah-olah adalah komputer nyata yang berjalan di dalam komputer lain.
+
+Karakteristik utama Virtual Machine:
+- Memiliki *hardware* virtual sendiri (CPU, RAM, Disk, NIC).
+- Menjalankan sistem operasi sendiri secara penuh (*Guest OS*).
+- Terisolasi penuh dari sistem *host* dan VM lainnya, sehingga aman untuk *testing* maupun *production*.
+- Membutuhkan lebih banyak *resource* (sumber daya) karena harus menjalankan kernel OS secara mandiri.
+
+## Apa itu Hypervisor?
+
+Hypervisor (atau Virtual Machine Monitor) adalah perangkat lunak yang menciptakan dan menjalankan mesin virtual. Hypervisor memisahkan sistem operasi dan aplikasi dari perangkat keras fisik. Terdapat dua jenis utama:
+
+1. **Type 1 (Bare-metal)**: Berjalan langsung di atas perangkat keras fisik (*hardware*). Contohnya adalah Proxmox (KVM), VMware ESXi, dan Microsoft Hyper-V. Jenis ini memberikan performa terbaik.
+2. **Type 2 (Hosted)**: Berjalan di atas sistem operasi *host* seperti sebuah aplikasi biasa. Contohnya adalah VirtualBox dan VMware Workstation. Lebih cocok untuk pengujian di PC desktop.
+
+## Perbandingan KVM vs Hypervisor Lainnya
+
+Berikut adalah perbandingan detail antara KVM (yang digunakan oleh Proxmox) dengan hypervisor populer lainnya:
+
+| Aspek | KVM (Proxmox) | Hyper-V (Microsoft) | VMware ESXi | VirtualBox |
+|-------|---------------|---------------------|-------------|------------|
+| **Tipe** | Type 1 | Type 1 | Type 1 | Type 2 |
+| **Lisensi** | Open Source (gratis) | Lisensi Windows Server / gratis (Hyper-V Server) | Berbayar (vSphere), ESXi gratis terbatas | Open Source (gratis) |
+| **Host OS** | Linux (Debian-based) | Windows | Proprietary | Windows / Mac / Linux |
+| **Performa** | Sangat baik, *near-native* | Baik | Sangat baik | Cukup (*overhead* tinggi) |
+| **Container** | LXC *built-in* | Windows Containers (terbatas) | Tidak ada | Tidak ada |
+| **GPU Passthrough** | Didukung penuh | Didukung (DDA) | Didukung (vGPU) | Terbatas |
+| **Cocok untuk** | Server produksi, homelab, lab sekolah | Enterprise Windows | Enterprise besar | Desktop testing / development |
+| **Manajemen** | Web UI + CLI | Windows Admin Center / Hyper-V Manager | vCenter | GUI Desktop |
+
+## Mengapa Proxmox Cocok untuk Lab TKJ?
+
+Bagi siswa Teknik Komputer dan Jaringan (TKJ), Proxmox VE adalah pilihan platform virtualisasi yang sangat ideal. Beberapa alasannya adalah:
+
+- **Gratis dan Open Source**: Tidak memerlukan lisensi berbayar, sangat cocok untuk anggaran sekolah.
+- **Manajemen Mudah**: Dapat dikelola langsung dari *web browser*, sehingga siswa dapat mengaksesnya dari PC mana saja di jaringan.
+- **Dukungan KVM dan LXC**: Siswa bisa belajar tentang mesin virtual penuh sekaligus teknologi kontainer yang lebih ringan.
+- **Komunitas Besar**: Banyak forum dan dokumentasi (termasuk wiki Proxmox) yang membantu memecahkan masalah.
+- **Belajar Clustering**: Memungkinkan siswa mempraktikkan konsep jaringan dan peladen (*server*) tingkat lanjut seperti *clustering* dari beberapa server.
+
+## Cara Install Proxmox (Ringkasan)
+
+Instalasi Proxmox cukup mudah dan mirip dengan instalasi distro Linux berbasis Debian. Berikut adalah langkah singkatnya:
+
+1. Unduh *file* ISO terbaru dari situs resmi Proxmox.
+2. Buat *bootable* USB.
+3. *Booting* server atau komputer kamu dari USB tersebut.
+4. Ikuti panduan (*wizard*) instalasi di layar.
+5. Setelah instalasi selesai dan server *reboot*, akses web UI melalui *browser* di `https://<ip-address-proxmox>:8006`.

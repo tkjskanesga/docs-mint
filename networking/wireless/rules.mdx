@@ -1,0 +1,29 @@
+---
+title: "Aturan Umum Jaringan Wireless"
+description: "Aturan, regulasi frekuensi, dan standardisasi keamanan pada jaringan nirkabel"
+---
+
+Dalam implementasi jaringan nirkabel (wireless), terdapat aturan dan standar internasional maupun nasional yang harus dipatuhi untuk menjaga performa sinyal dan mencegah interferensi.
+
+## 1. Regulasi Frekuensi (Bandwidth & Channel)
+Frekuensi nirkabel tidak boleh digunakan secara sembarangan karena dapat mengganggu komunikasi penting lainnya (seperti radar penerbangan, radio kepolisian, dan satelit).
+* **Industrial, Scientific, and Medical (ISM) Bands:** Frekuensi bebas lisensi yang digunakan untuk Wi-Fi publik, yaitu:
+  * **2.4 GHz:** Memiliki jangkauan luas dan penetrasi dinding yang baik, tetapi rentan interferensi karena hanya memiliki 3 channel non-overlapping (Channel 1, 6, dan 11).
+  * **5 GHz:** Memiliki bandwidth lebih lebar, kecepatan tinggi, dan minim interferensi, namun jangkauannya lebih pendek dan sulit menembus penghalang tebal.
+* **Aturan Penggunaan Channel:** Sangat disarankan untuk mengatur channel access point tetangga agar tidak tumpang tindih (*non-overlapping channel*), guna menghindari penurunan kualitas sinyal (*interference*).
+
+## 2. Batas Daya Pancar (EIRP)
+Setiap negara memiliki regulasi mengenai daya pancar maksimal (*Equivalent Isotropically Radiated Power* / EIRP) untuk antena wireless.
+* Di Indonesia, regulasi ini diatur oleh **Kominfo** (SDPPI).
+* Menggunakan penguat sinyal (*booster*) melebihi batas legal dapat mengakibatkan sanksi hukum dan merusak kualitas komunikasi perangkat nirkabel di sekitarnya.
+
+## 3. Standar Protokol Keamanan (Security Rules)
+Jaringan wireless memancarkan sinyal ke udara terbuka, sehingga sangat rentan terhadap penyadapan. Setiap administrator jaringan wajib menerapkan protokol keamanan minimal:
+* **WPA2-PSK (AES):** Standar keamanan minimum yang aman untuk jaringan rumah atau kantor kecil saat ini.
+* **WPA3:** Protokol keamanan terbaru dengan proteksi enkripsi yang jauh lebih kuat terhadap serangan brute-force.
+* **Hindari WEP dan WPA (Generasi Pertama):** Protokol-protokol lawas ini sudah usang dan dapat dibobol dalam hitungan menit menggunakan alat eksploitasi sederhana.
+
+## 4. Aturan Penempatan Perangkat (Line of Sight - LoS)
+Untuk jaringan wireless luar ruangan (outdoor) jarak jauh (Point-to-Point):
+* Harus memenuhi kondisi **Line of Sight (LoS)** di mana kedua antena dapat saling melihat langsung tanpa terhalang gedung, pohon, atau bukit.
+* Memperhitungkan **Fresnel Zone**: Area berbentuk elips di sekitar jalur transmisi yang harus bebas dari hambatan minimal 60% agar sinyal tidak mengalami redaman (*attenuation*).

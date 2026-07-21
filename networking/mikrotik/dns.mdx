@@ -1,0 +1,101 @@
+---
+title: "Konfigurasi DNS"
+description: "Panduan pengenalan dan konfigurasi Domain Name System (DNS) pada router MikroTik."
+---
+
+## Pengenalan DNS
+
+**Domain Name System (DNS)** adalah sistem yang berfungsi untuk menerjemahkan nama domain (seperti `google.com`) menjadi alamat IP (seperti `142.250.190.46`). 
+
+Fungsi utama DNS sangat krusial dalam jaringan karena manusia lebih mudah mengingat nama domain berupa teks daripada deretan angka alamat IP. Pada MikroTik, konfigurasi DNS yang tepat sangat penting agar router dan perangkat di bawahnya (klien) dapat terhubung ke internet dan mengakses berbagai layanan web dengan menggunakan nama domain.
+
+## DNS pada MikroTik
+
+Router MikroTik memiliki beberapa peran terkait DNS:
+
+1. **DNS Client**: MikroTik dapat dikonfigurasi untuk meneruskan (forward) setiap permintaan resolusi domain ke server DNS utama (upstream DNS), seperti DNS dari ISP atau DNS publik (misalnya Google DNS atau Cloudflare DNS).
+2. **DNS Cache**: MikroTik akan menyimpan hasil resolusi DNS sebelumnya ke dalam memori (cache). Hal ini mempercepat proses resolusi untuk permintaan domain yang sama di masa mendatang dan menghemat penggunaan bandwidth.
+3. **Allow Remote Requests**: Fitur ini memungkinkan klien yang terhubung ke jaringan lokal menggunakan alamat IP router MikroTik sebagai server DNS mereka. MikroTik akan melayani permintaan resolusi domain dari klien.
+
+## Konfigurasi DNS
+
+Kamu dapat mengonfigurasi DNS melalui antarmuka grafis (Winbox) maupun baris perintah (CLI).
+
+### Melalui Winbox (GUI)
+
+1. Buka Winbox dan login ke router.
+2. Klik menu **IP** > **DNS**.
+3. Pada kolom **Servers**, masukkan alamat IP DNS server (misalnya `8.8.8.8` dan klik tanda panah bawah untuk menambahkan `8.8.4.4`).
+4. Centang opsi **Allow Remote Requests** agar klien lokal dapat menggunakan router sebagai DNS server.
+5. Klik **Apply** lalu **OK**.
+
+### Melalui Terminal (CLI)
+
+Gunakan perintah berikut untuk mengatur DNS server dan mengaktifkan remote requests:
+
+```bash
+/ip dns set servers=8.8.8.8,8.8.4.4 allow-remote-requests=yes
+```
+
+## DNS Static
+
+DNS Static digunakan untuk menambahkan entri DNS secara manual. Fitur ini berguna untuk mengarahkan nama domain khusus ke alamat IP tertentu di jaringan lokal.
+
+Beberapa kegunaan DNS Static:
+- **Custom Hostname**: Memberikan nama domain lokal untuk server atau perangkat di jaringan (misal: `server.local`).
+- **Redirect Domain**: Mengalihkan lalu lintas domain tertentu ke IP lain.
+- **Blokir Situs**: Mengarahkan domain yang ingin diblokir ke alamat IP palsu atau tidak valid (seperti `127.0.0.1`).
+
+### Menambahkan DNS Static
+
+Sebagai contoh, untuk mengarahkan domain `server.local` ke alamat IP `192.168.10.100`:
+
+**Melalui Winbox:**
+1. Buka menu **IP** > **DNS**.
+2. Klik tombol **Static**.
+3. Klik tombol **+** (Tambah).
+4. Isi **Name** dengan `server.local` dan **Address** dengan `192.168.10.100`.
+5. Klik **OK**.
+
+**Melalui Terminal (CLI):**
+
+```bash
+/ip dns static add name=server.local address=192.168.10.100
+```
+
+## Verifikasi Konfigurasi
+
+Setelah melakukan konfigurasi, pastikan pengaturan DNS sudah berjalan dengan baik.
+
+Untuk melihat pengaturan DNS saat ini:
+```bash
+/ip dns print
+```
+
+Untuk melihat daftar cache DNS yang tersimpan:
+```bash
+/ip dns cache print
+```
+
+Uji koneksi dengan melakukan ping ke domain publik dari router:
+```bash
+ping google.com
+```
+
+Terakhir, pastikan klien di jaringan lokal juga dapat melakukan resolusi domain. Cobalah mengakses internet atau lakukan ping ke domain dari perangkat klien.
+
+## DNS Cache
+
+Seiring berjalannya waktu, cache DNS akan menumpuk. Terkadang, jika terjadi perubahan alamat IP pada sebuah domain, cache lama yang tersimpan dapat menyebabkan masalah akses. 
+
+Dalam kondisi ini, kamu bisa menghapus (flush) cache DNS agar MikroTik meminta alamat IP terbaru dari upstream DNS:
+
+**Melalui Winbox:**
+1. Buka menu **IP** > **DNS**.
+2. Klik tombol **Cache**.
+3. Klik tombol **Flush Cache**.
+
+**Melalui Terminal (CLI):**
+```bash
+/ip dns cache flush
+```

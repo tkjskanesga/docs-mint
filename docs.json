@@ -1,0 +1,163 @@
+{
+  "theme": "mint",
+  "name": "TKJ Skanesga Lab's",
+  "colors": {
+    "primary": "#c28f17",
+    "light": "#ffdd80",
+    "dark": "#806d16"
+  },
+  "logo": {
+    "light": "/logo/icon-web.svg",
+    "dark": "/logo/icon-web.svg",
+    "href": "/"
+  },
+  "favicon": "/logo/icon.png",
+  "background": {
+    "decoration": "gradient"
+  },
+  "navbar": {
+    "links": [],
+    "primary": {
+      "type": "button",
+      "label": "Profile",
+      "href": "https://tkjskanesga.github.io"
+    }
+  },
+  "footer": {
+    "socials": {
+      "github": "https://github.com/tkjskanesga",
+      "instagram": "https://www.instagram.com/tkj.skanesga.official"
+    }
+  },
+  "fonts": {
+    "family": "Inter"
+  },
+  "icons": {
+    "library": "fontawesome"
+  },
+  "contextual": {
+    "options": [
+      "copy",
+      "view",
+      "chatgpt",
+      "claude",
+      "perplexity",
+      "mcp",
+      "cursor",
+      "vscode"
+    ],
+    "display": "header"
+  },
+  "thumbnails": {
+    "appearance": "dark"
+  },
+  "metadata": {
+    "timestamp": true
+  },
+  "styling": {
+    "latex": true
+  },
+  "appearance": {
+    "default": "light"
+  },
+  "$schema": "https://mintlify.com/docs.json",
+  "navigation": {
+    "tabs": [
+      {
+        "tab": "Dokumentasi",
+        "groups": [
+          {
+            "group": "Mulai",
+            "pages": [
+              "dokumentasi/overview"
+            ]
+          }
+        ]
+      },
+      {
+        "tab": "Networking",
+        "groups": [
+          {
+            "group": "Overview",
+            "pages": [
+              "networking/overview"
+            ]
+          },
+          {
+            "group": "Fundamental",
+            "pages": [
+              "networking/fundamental/overview"
+            ]
+          },
+          {
+            "group": "Mikrotik",
+            "pages": [
+              "networking/mikrotik/overview",
+              "networking/mikrotik/config",
+              "networking/mikrotik/static-ip",
+              "networking/mikrotik/dhcp-client",
+              "networking/mikrotik/dns",
+              "networking/mikrotik/firewall-nat",
+              "networking/mikrotik/dhcp-server",
+              "networking/mikrotik/static-routing",
+              "networking/mikrotik/wireless-config",
+              "networking/mikrotik/backup"
+            ]
+          },
+          {
+            "group": "Cisco",
+            "pages": [
+              "networking/cisco/overview",
+              "networking/cisco/config"
+            ]
+          },
+          {
+            "group": "Wireless",
+            "pages": [
+              "networking/wireless/overview",
+              "networking/wireless/rules"
+            ]
+          }
+        ]
+      },
+      {
+        "tab": "Cloud Computing",
+        "groups": [
+          {
+            "group": "Overview",
+            "pages": [
+              "cloud-computing/overview"
+            ]
+          },
+          {
+            "group": "AWS",
+            "pages": [
+              "cloud-computing/aws/overview"
+            ]
+          }
+        ]
+      },
+      {
+        "tab": "SysAdmin",
+        "groups": [
+          {
+            "group": "Overview",
+            "pages": [
+              "sysadmin/overview"
+            ]
+          },
+          {
+            "group": "Proxmox VE",
+            "pages": [
+              "sysadmin/proxmox/overview",
+              "sysadmin/proxmox/virtual-machine",
+              "sysadmin/proxmox/vm-advanced",
+              "sysadmin/proxmox/lxc",
+              "sysadmin/proxmox/lxc-config"
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}

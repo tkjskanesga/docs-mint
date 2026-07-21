@@ -1,0 +1,53 @@
+---
+title: "Konfigurasi Awal MikroTik"
+description: "Panduan koneksi, metode akses, dan konfigurasi IP Address pada interface MikroTik"
+---
+
+## Koneksi & Akses Perangkat MikroTik
+
+Untuk melakukan konfigurasi awal pada MikroTik, ada beberapa metode akses yang bisa digunakan. Namun, metode yang paling umum dan direkomendasikan adalah menggunakan aplikasi **Winbox**.
+
+### 1. Persiapan Fisik
+1. Hubungkan adaptor listrik ke RouterBOARD MikroTik.
+2. Hubungkan komputer Anda menggunakan kabel ethernet (UTP/STP) ke **port 2** atau port lain selain port 1 (port 1 biasanya dikonfigurasi sebagai jalur Internet/WAN secara default).
+
+### 2. Mengakses MikroTik menggunakan Winbox
+1. Unduh aplikasi **Winbox** resmi dari situs [mikrotik.com/download](https://mikrotik.com/download).
+2. Buka Winbox, lalu masuk ke tab **Neighbors**.
+3. Klik tombol **Refresh** hingga MAC Address atau IP Address MikroTik Anda terdeteksi di daftar.
+4. Klik pada bagian **MAC Address** router (sangat disarankan menggunakan MAC Address pada konfigurasi awal karena IP Address default belum tentu selaras dengan komputer Anda).
+5. Masukkan kredensial default:
+   * **Login:** `admin`
+   * **Password:** *(kosongkan / biarkan tanpa isi)*
+6. Klik **Connect**.
+
+### 3. Alternatif Akses Lainnya
+* **Webfig:** Akses via web browser dengan mengetikkan IP address default router (`192.168.88.1`) di bilah alamat browser.
+* **SSH / Telnet:** Akses baris perintah (CLI) menggunakan terminal atau aplikasi client seperti PuTTY pada port 22 (SSH) atau port 23 (Telnet).
+
+---
+
+## Cara Memasang IP Address pada Interface
+
+Menetapkan IP Address di setiap interface fisik (ethernet) adalah langkah paling mendasar agar router dapat berkomunikasi dengan perangkat lain.
+
+### A. Menggunakan Winbox / Webfig (GUI)
+1. Buka Winbox dan hubungkan ke router Anda.
+2. Navigasikan ke menu **IP** -> **Addresses** di bilah menu kiri.
+3. Klik tombol **+** (Add) berwarna biru.
+4. Di jendela baru, konfigurasikan:
+   * **Address:** Masukkan IP Address beserta subnet mask-nya (misalnya `192.168.10.1/24`).
+   * **Network:** Biarkan kosong (akan otomatis terisi berdasarkan subnet mask).
+   * **Interface:** Pilih interface fisik tempat komputer atau jaringan lokal terhubung (misalnya `ether2`).
+5. Klik **Apply** lalu **OK**.
+
+### B. Menggunakan SSH / CLI
+Jika Anda terhubung via SSH atau terminal bawaan (New Terminal), ketikkan perintah berikut untuk menambahkan IP Address:
+```bash
+/ip address add address=192.168.10.1/24 interface=ether2
+```
+
+Untuk memverifikasi apakah IP Address sudah terpasang dengan benar, jalankan perintah:
+```bash
+/ip address print
+```

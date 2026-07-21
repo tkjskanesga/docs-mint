@@ -1,0 +1,67 @@
+---
+title: "Konfigurasi Awal Cisco"
+description: "Panduan akses CLI Cisco IOS dan cara mengonfigurasi IP Address pada port Cisco"
+---
+
+## Metode Akses Perangkat Cisco
+
+Perangkat Cisco tidak memiliki antarmuka grafis (GUI) bawaan seperti Winbox. Konfigurasi dilakukan sepenuhnya melalui **CLI (Command Line Interface)** menggunakan kabel khusus.
+
+### 1. Kabel Konsol (Console Cable)
+Untuk melakukan konfigurasi awal, Anda membutuhkan kabel konsol (biasanya berwarna biru muda berbentuk RJ45-to-DB9 atau USB-to-RJ45) yang menghubungkan port serial komputer Anda ke port **Console** pada perangkat Cisco.
+
+### 2. Aplikasi Terminal Emulator
+Gunakan aplikasi terminal emulator di komputer Anda (seperti **PuTTY**, **Tera Term**, atau **SecureCRT**) dengan pengaturan koneksi serial sebagai berikut:
+* **Speed (Baud Rate):** 9600
+* **Data Bits:** 8
+* **Parity:** None
+* **Stop Bits:** 1
+* **Flow Control:** None
+
+---
+
+## Mode Operasi Cisco IOS
+
+Setelah terhubung, Anda akan masuk ke sistem operasi Cisco IOS. Sistem ini memiliki tingkat mode akses (hierarki mode):
+
+1. **User EXEC Mode (`Router>`)**: Mode awal, hanya bisa melakukan perintah monitoring dasar.
+2. **Privileged EXEC Mode (`Router#`)**: Masuk menggunakan perintah `enable`. Digunakan untuk melihat konfigurasi dan status lengkap.
+3. **Global Configuration Mode (`Router(config)#`)**: Masuk menggunakan perintah `configure terminal` (`conf t`). Di sini konfigurasi global (seperti ganti hostname) dilakukan.
+4. **Interface Configuration Mode (`Router(config-if)#`)**: Masuk dengan perintah `interface [nama_interface]`. Digunakan untuk mengatur konfigurasi spesifik pada interface (seperti IP Address).
+
+---
+
+## Cara Memasang IP Address pada Interface Cisco
+
+Berikut adalah langkah-langkah untuk menambahkan IP Address pada interface Cisco:
+
+### A. Memasang IP Address di Router Cisco
+Router Cisco secara default mematikan (*disable*) semua interface fisiknya. Kita harus mengaktifkannya secara manual menggunakan perintah `no shutdown`.
+
+Jalankan perintah berikut pada terminal CLI:
+```cisco
+Router> enable
+Router# configure terminal
+Router(config)# interface GigabitEthernet0/0
+Router(config-if)# ip address 192.168.20.1 255.255.255.0
+Router(config-if)# no shutdown
+Router(config-if)# exit
+Router(config)# exit
+Router# write memory
+```
+> **Catatan:** Perintah `write memory` (atau singkatan `wr`) digunakan untuk menyimpan konfigurasi dari RAM (*running-config*) ke NVRAM (*startup-config*) agar konfigurasi tidak hilang saat perangkat dimatikan atau restart.
+
+### B. Memasang IP Address di Switch Managed Cisco (SVI)
+Pada Switch Layer 2 Cisco, IP Address tidak dipasang pada interface fisik secara langsung, melainkan pada **SVI (Switch Virtual Interface)** atau interface VLAN untuk kebutuhan manajemen remote (misal telnet/ssh).
+
+```cisco
+Switch> enable
+Switch# configure terminal
+Switch(config)# interface vlan 1
+Switch(config-if)# ip address 192.168.20.2 255.255.255.0
+Switch(config-if)# no shutdown
+Switch(config-if)# exit
+Switch(config)# ip default-gateway 192.168.20.1
+Switch(config)# exit
+Switch# write memory
+```

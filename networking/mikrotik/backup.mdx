@@ -1,0 +1,120 @@
+---
+title: "Backup, Restore, dan Export Script"
+description: "Panduan lengkap cara melakukan backup, restore, dan export konfigurasi pada MikroTik RouterOS"
+---
+
+## Pengenalan
+
+Melakukan backup konfigurasi router adalah salah satu praktik terpenting dalam mengelola jaringan. Backup memungkinkan kamu untuk mengembalikan kondisi router ke keadaan normal jika terjadi kesalahan konfigurasi atau kerusakan perangkat keras.
+
+Kamu perlu melakukan backup pada saat:
+- Sebelum melakukan pembaruan (update) versi RouterOS.
+- Sebelum melakukan perubahan besar pada konfigurasi (misalnya mengubah topologi routing atau aturan firewall yang kompleks).
+- Secara rutin berkala sebagai bagian dari pemeliharaan (maintenance) jaringan.
+
+MikroTik menyediakan dua metode utama untuk menyimpan konfigurasi, yaitu **Binary Backup** dan **Export Script**. Keduanya memiliki kegunaan dan karakteristik yang berbeda.
+
+## Binary Backup (.backup)
+
+Binary backup adalah metode penyimpanan yang menghasilkan file biner (berekstensi `.backup`). File ini menyimpan seluruh konfigurasi secara penuh, termasuk password, sertifikat keamanan, user management, dan MAC Address dari interface.
+
+> [!WARNING]
+> File `.backup` sebaiknya hanya di-restore ke router yang sama atau router lain dengan model fisik yang sama persis. Jika di-restore ke model yang berbeda, konfigurasi interface bisa berantakan.
+
+### Cara Melakukan Backup
+
+#### Via Winbox
+1. Buka menu **Files** di sebelah kiri.
+2. Klik tombol **Backup** (ikon folder dengan tanda panah ke atas).
+3. Isi kolom **Name** dengan nama file backup (misalnya `backup-sebelum-update`).
+4. (Opsional) Isi **Password** jika ingin mengenkripsi file backup.
+5. Klik **Backup**. File akan muncul di dalam daftar file.
+
+#### Via CLI
+Gunakan perintah berikut di terminal:
+```bash
+/system backup save name=backup-2024
+```
+*Catatan: File hasil backup akan tersimpan secara lokal di storage router.*
+
+### Cara Melakukan Restore
+
+> [!NOTE]
+> Setelah proses restore selesai, router akan melakukan _reboot_ (restart) secara otomatis untuk menerapkan konfigurasi baru.
+
+#### Via Winbox
+1. Buka menu **Files**.
+2. Pilih file `.backup` yang ingin dikembalikan konfigurasinya.
+3. Klik tombol **Restore**.
+4. Konfirmasi dengan klik **Yes**.
+
+#### Via CLI
+Gunakan perintah berikut:
+```bash
+/system backup load name=backup-2024.backup
+```
+
+## Export Script (.rsc)
+
+Export Script adalah metode penyimpanan yang menghasilkan file teks murni (berekstensi `.rsc`). File ini berisi barisan perintah CLI (Command Line Interface) yang bisa dibaca dan diedit menggunakan teks editor biasa seperti Notepad atau VS Code.
+
+Kelebihan utama metode ini adalah fleksibilitasnya. Script ini dapat dipindahkan dan digunakan (di-import) ke router yang berbeda jenis dan modelnya, asalkan versi RouterOS tidak terpaut terlalu jauh. File hasil export tidak menyimpan password dari akun pengguna router.
+
+### Cara Melakukan Export (Hanya CLI)
+
+Untuk mengekspor seluruh konfigurasi router:
+```bash
+/export file=export-config
+```
+
+Kamu juga bisa mengekspor hanya bagian tertentu saja. Misalnya, hanya ingin menyimpan konfigurasi IP Address:
+```bash
+/ip address export file=ip-config
+```
+
+Untuk mengekspor hanya konfigurasi yang berubah dari _default_ (menghilangkan konfigurasi bawaan agar script lebih ringkas):
+```bash
+/export compact file=export-compact
+```
+
+### Cara Melakukan Import (Hanya CLI)
+
+Untuk menjalankan perintah dari file script `.rsc` ke router:
+```bash
+/import file=export-config.rsc
+```
+Pastikan file `.rsc` sudah berada di menu **Files** pada router tersebut.
+
+## Mengunduh File dari Router
+
+File konfigurasi yang sudah dibuat (baik `.backup` maupun `.rsc`) akan tersimpan di dalam memori internal router. Jika terjadi kerusakan fisik pada router, file tersebut akan ikut hilang. Oleh karena itu, penting untuk memindahkannya ke komputer lokal.
+
+**Via Winbox:**
+1. Buka menu **Files**.
+2. Cari file yang ingin diunduh.
+3. _Drag and drop_ (seret dan lepaskan) file tersebut dari jendela Winbox langsung ke desktop atau folder di komputermu.
+
+**Via FTP / SFTP:**
+Kamu juga bisa menggunakan aplikasi FTP client seperti FileZilla. Cukup masukkan IP Address router, gunakan port 21 (FTP) atau 22 (SFTP/SSH), lalu login menggunakan _username_ dan _password_ routermu.
+
+## Reset Konfigurasi
+
+Jika terjadi kesalahan fatal dan kamu ingin mengembalikan router ke kondisi awal pabrik, kamu bisa melakukan reset konfigurasi.
+
+Untuk mereset router via CLI:
+```bash
+/system reset-configuration
+```
+
+Jika kamu ingin mereset router dan langsung me-load file `.backup` tertentu setelah proses reset selesai:
+```bash
+/system reset-configuration run-after-reset=backup-2024.backup
+```
+
+## Best Practices Backup
+
+Untuk menjaga keamanan dan keberlanjutan jaringan, perhatikan hal-hal berikut:
+1. **Lakukan backup sebelum proses update RouterOS**, sehingga kamu bisa melakukan *downgrade* dan memulihkan kondisi dengan aman jika update gagal atau *buggy*.
+2. **Jangan simpan backup hanya di router**. Selalu unduh file hasil backup ke komputer, hardisk eksternal, atau layanan cloud storage.
+3. **Gunakan format penamaan file yang rapi**, sebaiknya cantumkan tanggal dan tujuan/status backup. Contoh: `R1-Core-20241028-sebelum-bgp-update.backup`.
+4. **Manfaatkan Export Script untuk dokumentasi**. File teks `.rsc` sangat mudah dibaca. Kamu bisa menggunakan Git (version control) untuk melacak perubahan konfigurasi router dari waktu ke waktu.

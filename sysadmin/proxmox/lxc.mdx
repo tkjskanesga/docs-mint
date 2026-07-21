@@ -1,0 +1,60 @@
+---
+title: "Pengenalan LXC (Linux Containers)"
+description: "Memahami teknologi LXC di Proxmox VE dan perbedaannya dengan Docker atau VM tradisional."
+---
+
+## Apa itu LXC (Linux Containers)?
+
+LXC (Linux Containers) adalah teknologi virtualisasi tingkat sistem operasi (OS-level virtualization) yang memungkinkan kamu menjalankan beberapa lingkungan Linux terisolasi (container) dalam satu host pengontrol (control host). 
+
+Berbeda dengan Virtual Machine (VM) tradisional, container LXC berbagi kernel yang sama dengan sistem operasi host. Artinya, container tidak menjalankan kernelnya sendiri. Hal ini membuat LXC sangat ringan, memiliki waktu boot yang cepat, dan sangat efisien dalam penggunaan resource (CPU dan RAM). LXC sangat cocok untuk menjalankan layanan atau aplikasi Linux tanpa beban overhead dari sebuah VM penuh.
+
+## Konsep Dasar LXC
+
+Ada beberapa konsep inti yang perlu kamu ketahui tentang bagaimana LXC bekerja:
+
+- **Container**: Sebuah lingkungan terisolasi yang menjalankan proses seolah-olah berada di mesin terpisah, namun sebenarnya berjalan di atas kernel host.
+- **Linux Namespaces**: Teknologi yang digunakan untuk memberikan isolasi pada berbagai aspek sistem, seperti Process ID (PID), Network, Mount (filesystem), User, dan lainnya.
+- **Control Groups (cgroups)**: Fitur kernel Linux yang digunakan untuk membatasi, mencatat, dan mengisolasi penggunaan resource (seperti CPU, memori, I/O disk) untuk grup proses dalam container.
+- **CT Template**: LXC tidak menggunakan file ISO instalasi, melainkan menggunakan template (Container Template). Template ini adalah sistem operasi Linux dasar yang sudah dikompresi. Proxmox menyediakan berbagai template siap pakai seperti Debian, Ubuntu, Alpine, CentOS, dan lain-lain.
+
+## Perbedaan LXC vs Docker vs Podman vs Containerd
+
+Seringkali pengguna bingung antara berbagai teknologi container. Berikut adalah perbandingan detailnya:
+
+| Aspek | LXC | Docker | Podman | Containerd |
+|-------|-----|--------|--------|------------|
+| **Tipe** | System Container | Application Container | Application Container | Container Runtime |
+| **Fokus** | Menjalankan OS Linux lengkap (init system, multi-proses) | Menjalankan satu aplikasi/microservice per container | Sama seperti Docker tapi daemonless | Low-level runtime (backend untuk Docker/Kubernetes) |
+| **Init System** | Punya init (systemd/openrc) | Tidak ada, satu proses utama | Tidak ada, satu proses utama | Tidak ada |
+| **Penggunaan** | Pengganti VM ringan, server, lab | Deploy aplikasi, CI/CD, microservices | Deploy aplikasi (tanpa daemon root) | Backend runtime untuk orchestrator |
+| **Image Format** | CT Template (.tar.xz/.tar.gz) | OCI Image (Docker Hub) | OCI Image | OCI Image |
+| **Orkestrasi** | Proxmox Cluster | Docker Compose / Swarm / K8s | Podman Compose / K8s | Kubernetes |
+| **Manajemen** | Proxmox Web UI / `pct` CLI | `docker` CLI | `podman` CLI | `ctr` / `crictl` |
+| **Daemon** | `lxc-start` (non-daemon) | `dockerd` (daemon, root) | Daemonless, rootless | `containerd` daemon |
+| **Networking** | Bridge (veth), VLAN | Bridge, overlay, macvlan | Sama seperti Docker | CNI plugins |
+
+### Penjelasan Singkat:
+- **LXC = System Container**: LXC bertindak seperti VM yang sangat ringan. LXC memiliki *init system* (seperti `systemd`), kamu bisa melakukan SSH ke dalamnya, dan menginstal banyak layanan (service) secara bersamaan seperti layaknya server biasa.
+- **Docker/Podman = Application Container**: Fokus utamanya adalah menjalankan satu aplikasi atau *microservice* per container. Container ini bersifat *immutable* (tidak dirancang untuk diubah setelah berjalan) dan *disposable* (mudah dibuang dan diganti).
+- **Kapan memilih yang mana?** Gunakan LXC untuk skenario di mana kamu membutuhkan lingkungan OS penuh (seperti VPS) tetapi tidak menginginkan *overhead* dari VM. Gunakan Docker/Podman untuk men-deploy aplikasi spesifik yang sudah di-*package* ke dalam bentuk *image*.
+
+## Kapan Menggunakan LXC?
+
+LXC adalah pilihan yang tepat jika kamu memiliki kasus penggunaan berikut:
+- Menjalankan layanan infrastruktur seperti web server, DNS server, database, atau mail server di lingkungan yang terisolasi.
+- Membangun lab praktik jaringan atau sistem operasi Linux tanpa membutuhkan resource untuk VM penuh.
+- Menjalankan *service* yang sangat bergantung pada `systemd` (seperti Samba, BIND, Postfix).
+- Ketika resource server Proxmox kamu terbatas namun kamu perlu memisahkan berbagai layanan demi efisiensi dan keamanan.
+
+## Keunggulan LXC Dibanding VM
+
+Sebagai alternatif dari Virtual Machine konvensional (KVM/QEMU), LXC menawarkan beberapa keunggulan:
+- **Start Time Sangat Cepat**: Karena tidak perlu melakukan proses boot kernel, LXC bisa menyala hanya dalam hitungan detik.
+- **Konsumsi RAM Sangat Kecil**: LXC hanya mengonsumsi memori untuk proses yang benar-benar berjalan di dalamnya.
+- **Lebih Simpel**: Tidak perlu proses instalasi berbelit dari file ISO; kamu cukup menggunakan CT template yang ringan.
+- **Performa Near-Native**: Karena berinteraksi langsung dengan hardware melalui kernel host, tidak ada pengurangan performa akibat *hypervisor*.
+
+> [!WARNING]
+> **Kekurangan LXC:** 
+> Perlu diingat bahwa LXC hanya bisa menjalankan distribusi Linux. Tingkat isolasinya tidak sekuat VM penuh, dan karena berbagi kernel host, kamu tidak bisa menjalankan OS dengan versi kernel yang berbeda atau OS non-Linux (seperti Windows atau FreeBSD).

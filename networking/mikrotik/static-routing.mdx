@@ -1,0 +1,138 @@
+---
+title: "Routing Statis (Static Routing)"
+description: "Panduan konfigurasi routing statis antar Router MikroTik untuk menghubungkan dua jaringan yang berbeda."
+---
+
+# Routing Statis (Static Routing)
+
+## Pengenalan Routing
+
+Routing adalah proses menentukan jalur terbaik untuk mengirimkan paket data dari satu jaringan ke jaringan lain. Tanpa routing, perangkat di jaringan yang berbeda tidak akan bisa saling berkomunikasi. 
+
+Secara umum, terdapat dua jenis routing:
+- **Static Routing**: Rute dikonfigurasi secara manual oleh administrator jaringan.
+- **Dynamic Routing**: Router saling bertukar informasi routing secara otomatis menggunakan protokol tertentu (seperti OSPF atau BGP).
+
+**Kapan menggunakan Static Routing?**
+Static routing sangat ideal digunakan pada jaringan berskala kecil dengan topologi yang sederhana. Selain itu, metode ini memberikan kontrol penuh kepada administrator mengenai jalur mana yang harus dilewati oleh paket data, dan tidak membebani CPU router karena tidak ada proses perhitungan rute otomatis.
+
+## Topologi Contoh
+
+Untuk memahami konfigurasi static routing, mari gunakan contoh topologi dengan dua router:
+
+- **Router 1**
+  - **ether1** (Jalur antar router): `10.10.10.1/30`
+  - **ether2** (LAN 1): `192.168.10.1/24` (Network: `192.168.10.0/24`)
+
+- **Router 2**
+  - **ether1** (Jalur antar router): `10.10.10.2/30`
+  - **ether2** (LAN 2): `192.168.20.1/24` (Network: `192.168.20.0/24`)
+
+**Tujuan**: Perangkat komputer (PC) di jaringan LAN 1 (`192.168.10.0/24`) dapat berkomunikasi dengan PC di jaringan LAN 2 (`192.168.20.0/24`), dan sebaliknya.
+
+---
+
+## Konfigurasi IP Address
+
+Sebelum mengatur routing, pastikan kamu sudah mengkonfigurasi IP Address pada masing-masing antarmuka (interface) di kedua router.
+
+### Router 1
+**Via CLI:**
+```bash
+/ip address add address=10.10.10.1/30 interface=ether1
+/ip address add address=192.168.10.1/24 interface=ether2
+```
+
+### Router 2
+**Via CLI:**
+```bash
+/ip address add address=10.10.10.2/30 interface=ether1
+/ip address add address=192.168.20.1/24 interface=ether2
+```
+
+---
+
+## Menambahkan Static Route
+
+Agar Router 1 tahu cara menuju LAN 2, kita harus menambahkan rute (route) yang mengarah ke `192.168.20.0/24` melalui Router 2. Begitu juga sebaliknya untuk Router 2.
+
+### Pada Router 1
+
+**Via CLI:**
+```bash
+/ip route add dst-address=192.168.20.0/24 gateway=10.10.10.2
+```
+
+**Via Winbox:**
+1. Klik menu **IP** > **Routes**.
+2. Klik tombol **+** (Add) untuk menambahkan rute baru.
+3. Pada tab **General**, isi kolom:
+   - **Dst. Address**: `192.168.20.0/24`
+   - **Gateway**: `10.10.10.2`
+4. Klik **Apply** lalu **OK**.
+
+### Pada Router 2
+
+**Via CLI:**
+```bash
+/ip route add dst-address=192.168.10.0/24 gateway=10.10.10.1
+```
+
+**Via Winbox:**
+1. Klik menu **IP** > **Routes**.
+2. Klik tombol **+** (Add).
+3. Pada tab **General**, isi kolom:
+   - **Dst. Address**: `192.168.10.0/24`
+   - **Gateway**: `10.10.10.1`
+4. Klik **Apply** lalu **OK**.
+
+---
+
+## Memahami Tabel Routing (Routing Table)
+
+Saat kamu menambahkan rute, ada beberapa parameter penting yang perlu dipahami:
+- **Dst. Address (Destination Address)**: Alamat jaringan tujuan yang ingin dicapai.
+- **Gateway**: Alamat IP dari router tetangga (next-hop) yang menjadi pintu keluar menuju jaringan tujuan.
+- **Distance**: Nilai prioritas rute. Rute dengan nilai distance lebih kecil akan diprioritaskan. Untuk static route, default-nya adalah `1`.
+
+---
+
+## Verifikasi Konfigurasi
+
+Setelah konfigurasi selesai, kamu perlu memastikan bahwa routing sudah berjalan dengan baik.
+
+### 1. Cek Tabel Routing
+Pastikan status rute yang ditambahkan adalah `AS` (Active, Static).
+```bash
+# Pada Router 1
+/ip route print
+```
+
+### 2. Tes Ping antar Router
+Dari Router 1, coba ping ke IP LAN Router 2.
+```bash
+ping 192.168.20.1
+```
+
+### 3. Tes Ping antar PC
+Lakukan ping dari PC di LAN 1 ke PC di LAN 2 (contoh IP PC LAN 2 adalah `192.168.20.10`).
+```bash
+ping 192.168.20.10
+```
+
+### 4. Traceroute
+Gunakan traceroute untuk memastikan paket melewati jalur yang benar.
+```bash
+/tool traceroute 192.168.20.1
+```
+
+---
+
+## Troubleshooting (Jika Ping Gagal)
+
+Jika pengujian ping gagal (seperti `Request Timed Out` atau `Destination Host Unreachable`), periksa beberapa hal berikut:
+
+1. **Cek Koneksi Fisik**: Pastikan kabel terhubung dengan baik antar router dan PC.
+2. **Cek Konfigurasi IP PC**: Pastikan IP Address pada PC, dan gateway PC (mengarah ke IP router ether2) sudah benar.
+3. **Cek Firewall**: Pastikan tidak ada aturan **Firewall Filter** (seperti rule drop) yang memblokir trafik ICMP (ping) atau trafik antar segmen IP tersebut.
+4. **Cek Status Gateway**: Pada menu **IP > Routes**, pastikan status gateway rute statis yang kamu buat menunjukkan status `reachable`. Jika `unreachable`, berarti router tidak bisa menghubungi gateway tujuan (coba ping IP ether1 router tetangga terlebih dahulu).

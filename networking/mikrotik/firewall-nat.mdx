@@ -1,0 +1,71 @@
+---
+title: "Konfigurasi Firewall NAT"
+description: "Pengenalan dan panduan konfigurasi Firewall NAT pada MikroTik RouterOS"
+---
+
+# Pengenalan NAT
+
+**Network Address Translation (NAT)** adalah sebuah metode yang digunakan untuk memetakan alamat IP jaringan lokal (Private IP) ke alamat IP publik (Public IP) dan sebaliknya. 
+
+Fungsi utama dari NAT adalah menerjemahkan IP private agar perangkat atau *client* di jaringan lokal kamu bisa mengakses internet. Tanpa NAT, IP private tidak akan dikenali atau dirutekan di jaringan internet global.
+
+Pada MikroTik RouterOS, terdapat dua jenis NAT yang paling sering digunakan:
+- **srcnat (Source NAT)**: Digunakan untuk mengubah alamat IP sumber (*source*) dari sebuah paket data. Biasanya digunakan agar jaringan lokal bisa mengakses internet.
+- **dstnat (Destination NAT)**: Digunakan untuk mengubah alamat IP tujuan (*destination*) dari sebuah paket data. Sering disebut juga sebagai *Port Forwarding*, yang memungkinkan pengguna dari internet mengakses layanan di dalam jaringan lokal.
+
+## Source NAT (Masquerade)
+
+Klien dengan IP private tidak bisa langsung berkomunikasi ke internet. Oleh karena itu, kita memerlukan Source NAT untuk menyembunyikan IP private di balik IP public milik router.
+
+Terdapat dua aksi (*action*) umum pada srcnat:
+- `src-nat`: Menentukan secara spesifik IP public mana yang akan digunakan. Cocok untuk router dengan IP public statis.
+- `masquerade`: Secara otomatis menggunakan alamat IP dari *interface* keluaran (*outgoing interface*). Sangat disarankan jika IP public kamu bersifat dinamis (berubah-ubah), seperti dari koneksi PPPoE atau DHCP Client.
+
+### Konfigurasi via Winbox
+
+1. Buka menu **IP** > **Firewall**.
+2. Masuk ke *tab* **NAT**, lalu klik tombol **+** (Add).
+3. Pada *tab* **General**, atur **Chain** menjadi `srcnat` dan **Out. Interface** menjadi *interface* yang terhubung ke internet (contoh: `ether1`).
+4. Pindah ke *tab* **Action**, ubah **Action** menjadi `masquerade`.
+5. Klik **Apply** dan **OK**.
+
+### Konfigurasi via CLI
+
+Untuk melakukan konfigurasi yang sama melalui terminal, gunakan perintah berikut:
+
+```bash
+/ip firewall nat add chain=srcnat out-interface=ether1 action=masquerade
+```
+
+## Destination NAT (Port Forwarding)
+
+Destination NAT berfungsi untuk meneruskan *traffic* dari jaringan luar (internet) menuju ke *server* atau layanan spesifik yang berada di dalam jaringan lokal kamu.
+
+Sebagai contoh, jika kamu memiliki *web server* lokal dengan IP `192.168.10.100` dan ingin agar *server* tersebut bisa diakses dari luar melalui *port* 80, kamu bisa menggunakan aturan `dstnat`.
+
+### Konfigurasi via CLI
+
+Gunakan perintah berikut untuk melakukan *forwarding port* 80 ke *web server* lokal:
+
+```bash
+/ip firewall nat add chain=dstnat dst-port=80 protocol=tcp action=dst-nat to-addresses=192.168.10.100 to-ports=80 in-interface=ether1
+```
+
+## Verifikasi Rule NAT
+
+Setelah menambahkan aturan NAT, kamu perlu memverifikasi apakah aturan tersebut sudah berjalan dengan baik.
+
+### Melihat Daftar Rule
+
+Gunakan perintah ini untuk melihat semua aturan NAT yang telah dibuat:
+
+```bash
+/ip firewall nat print
+```
+
+### Memeriksa Status Rule
+
+Perhatikan *counter* *bytes* dan *packets*. Jika angka pada *counter* bertambah saat *client* mengakses internet atau saat layanan diakses dari luar, berarti aturan NAT yang kamu buat sudah aktif dan bekerja. Pada Winbox, kamu bisa melihat *counter* ini langsung di tabel daftar *rule* NAT.
+
+> [!TIP]
+> **Penting**: Urutan *rule* pada *firewall* sangat penting. MikroTik memproses *rule* dari atas ke bawah. Pastikan *rule* disusun dengan benar, umumnya dari yang lebih spesifik di atas ke yang lebih umum di bawah.

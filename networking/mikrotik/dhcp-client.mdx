@@ -1,0 +1,128 @@
+---
+title: "DHCP Client MikroTik"
+description: "Pengenalan dan konfigurasi DHCP Client pada MikroTik RouterOS"
+---
+
+## Pengenalan DHCP Client
+
+### Apa itu DHCP Client
+DHCP (Dynamic Host Configuration Protocol) Client adalah fitur pada perangkat jaringan yang memungkinkan perangkat tersebut untuk meminta dan menerima konfigurasi jaringan secara otomatis dari sebuah DHCP Server.
+
+### Fungsi pada router
+Fungsi utama DHCP Client pada router MikroTik adalah untuk secara otomatis mendapatkan informasi jaringan dari ISP atau router di atasnya (upstream). Informasi yang didapatkan biasanya meliputi:
+- **IP Address**: Alamat identitas router pada jaringan tersebut.
+- **Gateway**: Jalur keluar (default route) menuju internet.
+- **DNS Server**: Server penerjemah nama domain (resolusi nama).
+
+### Kapan menggunakan DHCP Client
+Kamu sebaiknya menggunakan DHCP Client ketika pihak penyedia layanan internet (ISP) atau jaringan di atasmu memberikan IP secara dinamis. Jika kamu berlangganan internet rumah atau menggunakan modem, biasanya modem tersebut sudah bertindak sebagai DHCP Server.
+
+### Perbedaan dengan Static IP
+Pada konfigurasi **Static IP**, kamu harus memasukkan IP Address, Gateway, dan DNS secara manual satu per satu sesuai yang diberikan oleh ISP. Sedangkan pada DHCP Client, semua parameter tersebut didapatkan secara otomatis, sehingga meminimalisir kesalahan konfigurasi (human error) dan menghemat waktu.
+
+## Topologi jaringan
+
+Sebelum memulai konfigurasi, pastikan kabel jaringan sudah terhubung dengan benar sesuai dengan topologi berikut:
+
+```
+Internet --- [Modem/ISP] --- (ether1) [MikroTik] (ether2) --- [PC/Laptop]
+```
+
+Pada skenario ini, `ether1` pada MikroTik terhubung ke arah Modem/ISP untuk mendapatkan akses internet.
+
+## Konfigurasi DHCP Client
+
+Kamu bisa mengonfigurasi DHCP Client melalui antarmuka grafis (Winbox) ataupun melalui antarmuka baris perintah (CLI). 
+
+### Melalui Winbox (GUI)
+
+1. Buka Winbox dan login ke router MikroTik Anda.
+2. Klik menu **IP** pada menu utama sebelah kiri, lalu pilih **DHCP Client**.
+3. Pada jendela DHCP Client, klik tombol **+** (Add) untuk menambahkan konfigurasi baru.
+4. Pada tab **DHCP**, atur parameter berikut:
+   - **Interface**: Pilih `ether1` (sesuai interface yang mengarah ke ISP).
+   - **Use Peer DNS**: Centang (untuk menggunakan DNS dari ISP).
+   - **Use Peer NTP**: Centang (untuk sinkronisasi waktu).
+   - **Add Default Route**: Pilih `yes` (agar otomatis dibuatkan rute ke internet).
+5. Klik **Apply** lalu **OK**.
+
+### Melalui Terminal (CLI)
+
+Buka menu **New Terminal** di Winbox dan ketikkan perintah berikut:
+
+```bash
+/ip dhcp-client add interface=ether1 disabled=no
+```
+
+Perintah di atas secara otomatis akan mengatur parameter lain (seperti Add Default Route dan Use Peer DNS) ke nilai *default* yaitu `yes`.
+
+## Verifikasi konfigurasi
+
+Setelah mengonfigurasi DHCP Client, kamu perlu memastikan bahwa router sudah benar-benar mendapatkan konfigurasi jaringan dan terkoneksi ke internet.
+
+### 1. Cek status DHCP Client
+Status harus menunjukkan `bound`.
+
+Via Winbox: Lihat kolom **Status** pada jendela DHCP Client.
+Via CLI:
+```bash
+/ip dhcp-client print
+```
+
+### 2. Cek IP Address
+Pastikan router sudah mendapatkan IP Address dinamis.
+
+Via Winbox: Masuk ke menu **IP** > **Addresses**. Pastikan ada IP dengan *flag* `D` (Dynamic) pada interface `ether1`.
+Via CLI:
+```bash
+/ip address print
+```
+
+### 3. Cek routing
+Pastikan jalur ke internet (*default route*) sudah otomatis ditambahkan.
+
+Via Winbox: Masuk ke menu **IP** > **Routes**. Pastikan ada *route* ke `0.0.0.0/0` dengan *flag* `DAS` (Dynamic, Active, Static).
+Via CLI:
+```bash
+/ip route print
+```
+
+### 4. Cek DNS
+Pastikan router mendapatkan alamat DNS Server dari ISP.
+
+Via Winbox: Masuk ke menu **IP** > **DNS**. Klik **Dynamic Servers** untuk melihat DNS yang didapat.
+Via CLI:
+```bash
+/ip dns print
+```
+
+### 5. Test konektivitas (Ping IP)
+Coba lakukan ping ke DNS Google untuk memastikan koneksi internet secara dasar (*routing*) sudah berhasil.
+
+```bash
+ping 8.8.8.8
+```
+
+### 6. Test resolusi DNS (Ping Domain)
+Coba lakukan ping ke sebuah domain untuk memastikan fungsi DNS (resolusi nama) berjalan dengan baik.
+
+```bash
+ping google.com
+```
+
+## Penjelasan status DHCP Client
+
+Saat mengaktifkan DHCP Client, ada beberapa status yang akan muncul:
+- `searching`: Router sedang mencari DHCP Server di jaringan.
+- `requesting`: Router sudah menemukan DHCP Server dan sedang meminta IP Address.
+- `bound`: Router sudah berhasil mendapatkan IP Address beserta konfigurasinya. Ini adalah status yang diharapkan.
+- `rebinding`: Masa sewa (lease time) IP hampir habis, dan router sedang meminta pembaruan sewa ke DHCP Server.
+
+## Tips Troubleshooting
+
+Jika status DHCP Client tertahan pada `searching` dan tidak menjadi `bound`, coba periksa hal-hal berikut:
+- **Kabel fisik**: Pastikan kabel dari ISP/Modem dicolokkan dengan kencang ke port yang benar (`ether1`). Periksa apakah lampu indikator pada port tersebut menyala.
+- **Port di sisi Modem/ISP**: Terkadang ISP mengunci layanan pada port tertentu (misal LAN 1 pada ONT IndiHome). Pastikan kamu menghubungkan ke port yang tepat.
+- **Modem belum dikonfigurasi bridge/router**: Jika menggunakan modem sendiri, pastikan fungsi DHCP Server pada modem tersebut aktif.
+- **Konflik IP**: Pastikan IP jaringan lokal (LAN) di router MikroTik kamu tidak berada pada *subnet* yang sama dengan IP dari Modem/ISP.
+- **Cek Log MikroTik**: Buka menu **Log** untuk melihat pesan *error* terkait DHCP secara lebih detail.

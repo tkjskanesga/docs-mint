@@ -1,0 +1,102 @@
+---
+title: 'Konfigurasi DHCP Server'
+description: 'Panduan lengkap cara mengonfigurasi DHCP Server pada MikroTik RouterOS'
+---
+
+## Pengenalan DHCP Server
+
+**DHCP (Dynamic Host Configuration Protocol) Server** adalah layanan yang secara otomatis mendistribusikan konfigurasi jaringan ke perangkat client. Konfigurasi ini meliputi alamat IP, subnet mask, *default gateway*, dan DNS server. 
+
+Dengan mengaktifkan DHCP Server pada MikroTik, kamu tidak perlu repot melakukan pengaturan alamat IP secara manual (statis) pada setiap client yang terhubung ke jaringan.
+
+Biasanya, konfigurasi ini dilakukan setelah router sudah terhubung ke internet (melalui DHCP Client atau konfigurasi Static IP) dan DNS sudah diatur, sehingga router sudah siap untuk membagikan akses ke jaringan lokal.
+
+## Prasyarat
+
+Sebelum membuat DHCP Server, pastikan router MikroTik kamu sudah memenuhi beberapa prasyarat berikut:
+
+1. **Interface LAN sudah memiliki IP Address**
+   Misalnya, interface yang terhubung ke client adalah `ether2`, pastikan sudah diset IP Address-nya, contoh: `192.168.10.1/24`.
+2. **DNS sudah dikonfigurasi**
+   Fitur `allow-remote-requests` pada pengaturan DNS sebaiknya sudah diaktifkan jika kamu ingin menggunakan IP router sebagai DNS server untuk client.
+3. **NAT Masquerade sudah aktif**
+   Agar client bisa mengakses internet, pastikan aturan *Firewall NAT* dengan *action masquerade* sudah dikonfigurasi untuk interface yang mengarah ke internet.
+
+---
+
+## Konfigurasi DHCP Server via Winbox (DHCP Setup Wizard)
+
+Cara paling mudah dan direkomendasikan untuk membuat DHCP Server di MikroTik adalah menggunakan fitur **DHCP Setup**. Fitur ini seperti *wizard* yang akan menuntun kamu langkah demi langkah.
+
+1. Buka Winbox dan klik menu **IP** > **DHCP Server**.
+2. Pada tab **DHCP**, klik tombol **DHCP Setup**.
+3. **DHCP Server Interface**: Pilih interface yang terhubung ke jaringan lokal (contoh: `ether2`), lalu klik **Next**.
+4. **DHCP Address Space**: Jaringan untuk IP lokal akan terisi otomatis berdasarkan IP interface (contoh: `192.168.10.0/24`). Klik **Next**.
+5. **Gateway for DHCP Network**: Alamat *gateway* untuk client, biasanya menggunakan IP interface router (contoh: `192.168.10.1`). Klik **Next**.
+6. **Addresses to Give Out**: Rentang alamat IP yang akan dibagikan ke client. (contoh: `192.168.10.2-192.168.10.254`). Kamu bisa mengubahnya sesuai kebutuhan. Klik **Next**.
+7. **DNS Servers**: Masukkan alamat DNS server. Kamu bisa menggunakan DNS ISP, DNS publik seperti `8.8.8.8`, atau cukup menggunakan IP router itu sendiri `192.168.10.1` jika `allow-remote-requests` aktif. Klik **Next**.
+8. **Lease Time**: Durasi masa sewa IP untuk client. Biarkan default (`00:10:00` atau 10 menit) atau sesuaikan. Klik **Next**.
+9. Akan muncul pesan **Setup has completed successfully**.
+
+---
+
+## Konfigurasi via CLI
+
+Jika kamu lebih suka menggunakan *Command Line Interface* melalui Terminal Winbox atau SSH, berikut adalah perintah untuk mengonfigurasi DHCP Server.
+
+Konfigurasi manual (non-wizard) melalui CLI membutuhkan tiga langkah: membuat *IP pool*, mendefinisikan jaringan, dan menambahkan DHCP Server itu sendiri.
+
+```bash
+# 1. Membuat IP Pool (Rentang IP untuk client)
+/ip pool add name=dhcp_pool ranges=192.168.10.2-192.168.10.254
+
+# 2. Mendefinisikan Jaringan DHCP (Network, Gateway, dan DNS)
+/ip dhcp-server network add address=192.168.10.0/24 gateway=192.168.10.1 dns-server=192.168.10.1
+
+# 3. Mengaktifkan DHCP Server di interface LAN
+/ip dhcp-server add name=dhcp1 interface=ether2 address-pool=dhcp_pool disabled=no
+```
+
+---
+
+## Verifikasi dan Pengujian
+
+Setelah DHCP Server berhasil dibuat, kamu perlu memastikan client sudah mendapatkan IP Address secara otomatis dan bisa mengakses internet.
+
+### 1. Pengecekan pada MikroTik
+Untuk melihat daftar perangkat (client) yang sudah mendapatkan IP Address dari router:
+- **Winbox**: Buka menu **IP** > **DHCP Server**, lalu masuk ke tab **Leases**.
+- **CLI**: Gunakan perintah berikut:
+  ```bash
+  /ip dhcp-server lease print
+  ```
+
+### 2. Pengujian pada Client
+Hubungkan perangkat client ke *port* atau jaringan yang sesuai (misal `ether2`).
+- Pada **Windows**:
+  Buka *Command Prompt* (CMD) dan jalankan `ipconfig`. Pastikan *IPv4 Address* yang didapat berada dalam rentang IP MikroTik.
+- Pada **Linux**:
+  Buka Terminal dan jalankan `ip a` atau `ifconfig`.
+
+Untuk memastikan internet berjalan lancar, lakukan *ping* ke internet dari client:
+```cmd
+ping google.com
+```
+
+---
+
+## Memahami Lease Time
+
+**Lease Time** adalah waktu penyewaan alamat IP yang diberikan DHCP Server kepada perangkat client.
+
+- Saat batas waktu (lease time) hampir habis (biasanya di pertengahan waktu), client akan otomatis meminta perpanjangan IP tersebut (*renew*) agar koneksi tidak terputus.
+- Jika client tidak melakukan *renew* (misalnya karena perangkat dimatikan atau dicabut), alamat IP tersebut akan dianggap "bebas" dan dapat diberikan ke perangkat lain.
+- Untuk jaringan publik (seperti cafe atau wifi sekolah), disarankan menggunakan *lease time* yang singkat (misal 10-30 menit) agar IP cepat berputar. Untuk jaringan kantor/rumah, bisa menggunakan waktu lebih lama.
+
+### Menghapus Lease Manual
+Jika ada perangkat yang sudah tidak aktif namun *lease*-nya belum habis, kamu bisa menghapusnya secara manual agar IP tersebut bisa digunakan kembali:
+- Pada Winbox, masuk tab **Leases**, pilih client yang ingin dihapus, klik tanda hapus (minus merah).
+- Pada CLI:
+  ```bash
+  /ip dhcp-server lease remove [nomor/id lease]
+  ```

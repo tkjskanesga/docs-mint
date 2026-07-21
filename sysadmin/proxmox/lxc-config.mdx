@@ -1,0 +1,168 @@
+---
+title: Konfigurasi dan Penggunaan LXC Container
+description: Panduan lengkap membuat, mengonfigurasi, dan mengelola LXC (Linux Containers) di Proxmox VE
+---
+
+## Download CT template
+
+Sebelum membuat LXC container, Anda perlu mengunduh template OS terlebih dahulu.
+
+### Menggunakan web UI
+
+1. Pilih **Node** Anda di panel kiri.
+2. Buka menu **local** storage di bawah node tersebut.
+3. Klik menu **CT Templates**.
+4. Klik tombol **Templates** pada toolbar.
+5. Pilih template yang diinginkan (contoh: `debian-12-standard`, `ubuntu-22.04-standard`, atau `alpine`).
+6. Klik tombol **Download** untuk mengunduh template ke storage lokal.
+
+### Menggunakan CLI
+
+Anda juga bisa mengunduh dan mengelola template langsung dari terminal Proxmox.
+
+Melihat daftar template yang tersedia:
+```bash
+pveam available
+```
+
+Mengunduh template tertentu:
+```bash
+pveam download local debian-12-standard_12.2-1_amd64.tar.zst
+```
+
+Melihat daftar template yang sudah diunduh di storage lokal:
+```bash
+pveam list local
+```
+
+## Membuat LXC container via web UI
+
+1. Klik tombol **Create CT** di pojok kanan atas antarmuka Proxmox.
+2. Pada tab **General**:
+   - Pilih node yang aktif.
+   - Isi **CT ID**.
+   - Ketik **Hostname** untuk nama container (contoh: `web-server`).
+   - Masukkan **Password** untuk user root.
+   - Tambahkan **SSH public key** Anda jika diperlukan (opsional).
+3. Pada tab **Template**:
+   - Pilih **Storage** tempat template berada (biasanya `local`).
+   - Pilih **Template** yang sudah Anda unduh sebelumnya.
+4. Pada tab **Root Disk**:
+   - Pilih **Storage** untuk disk container (biasanya `local-lvm`).
+   - Tentukan ukuran disk pada **Disk size (GiB)** (contoh: `8`).
+5. Pada tab **CPU**:
+   - Atur jumlah **Cores** sesuai kebutuhan Anda (contoh: `2`).
+6. Pada tab **Memory**:
+   - Masukkan alokasi **Memory (MiB)** (contoh: `512`).
+   - Masukkan alokasi **Swap (MiB)** (contoh: `512`).
+7. Pada tab **Network**:
+   - Biarkan **Name** berisi `eth0`.
+   - Pilih antarmuka jaringan pada **Bridge** (biasanya `vmbr0`).
+   - Atur **IPv4** ke DHCP atau Static (contoh: `192.168.10.50/24`).
+   - Jika Anda memilih Static, isi **Gateway** jaringan (contoh: `192.168.10.1`).
+8. Pada tab **DNS**:
+   - Isi **DNS domain** (Anda bisa mengosongkannya jika tidak memiliki domain internal).
+   - Masukkan **DNS server** (contoh: `8.8.8.8` atau IP router Anda).
+9. Konfirmasi pengaturan Anda di tab akhir lalu klik **Finish**.
+
+## Membuat LXC container via CLI
+
+Anda dapat menggunakan perintah `pct create` untuk membuat container dengan satu baris perintah. Pastikan nama file template sesuai dengan yang Anda unduh.
+
+```bash
+pct create 100 local:vztmpl/debian-12-standard_12.2-1_amd64.tar.zst \
+  --hostname web-server \
+  --memory 512 \
+  --swap 512 \
+  --cores 2 \
+  --rootfs local-lvm:8 \
+  --net0 name=eth0,bridge=vmbr0,ip=192.168.10.50/24,gw=192.168.10.1 \
+  --nameserver 8.8.8.8 \
+  --password
+```
+
+## Menjalankan dan mengakses container
+
+Setelah container berhasil dibuat, Anda bisa mengelolanya melalui antarmuka web dengan memilih container dan mengklik tombol **Console**. Alternatifnya, gunakan CLI Proxmox.
+
+Menyalakan container:
+```bash
+pct start 100
+```
+
+Masuk ke console shell pada container:
+```bash
+pct enter 100
+```
+
+Mematikan container:
+```bash
+pct stop 100
+```
+
+Me-restart container:
+```bash
+pct restart 100
+```
+
+## Privileged vs unprivileged container
+
+Konsep ini sangat penting saat bekerja dengan container di LXC.
+
+### Unprivileged container
+
+Unprivileged container adalah mode bawaan yang paling disarankan oleh Proxmox.
+
+- UID dan GID di dalam container dipetakan ke rentang angka yang tinggi di server host.
+- Akun root di dalam container tidak akan berlaku sebagai akun root di server host (misalnya UID 0 menjadi UID 100000 di host).
+- Mode ini jauh lebih aman.
+- Jika container berhasil dieksploitasi, peretas tidak mendapatkan hak akses administrator pada server fisik Anda.
+- Keterbatasannya adalah larangan mounting NFS dan pembatasan terhadap interaksi perangkat keras secara langsung.
+- Proxmox mengaktifkan pengaturan ini secara otomatis (secara default) pada saat Anda membuat CT baru.
+
+### Privileged container
+
+Privileged container memiliki tingkat hak akses yang serupa dengan sistem operasi utama.
+
+- UID dan GID di dalam container sama persis dengan yang ada di server host.
+- Akun root di dalam container adalah akun root sungguhan yang ada di server host.
+- Mode ini kurang aman karena berpotensi mengizinkan penyerang untuk meretas sistem server host Anda.
+- Privileged container jauh lebih fleksibel jika Anda perlu mengakses perangkat keras atau menghubungkan sistem file tanpa batasan.
+- Anda bisa menggunakan mode ini dengan menghapus centang pada opsi **Unprivileged container** ketika membuat CT di tab General.
+- Di CLI, Anda bisa menambahkan flag `--unprivileged 0` ke baris perintah.
+- Gunakan tipe container ini hanya untuk skenario khusus yang memerlukan akses mendalam.
+
+### Tabel perbandingan
+
+| Aspek | Unprivileged | Privileged |
+|---|---|---|
+| Keamanan | Tinggi | Rendah |
+| Root di container | Bukan root di host | Root di host |
+| Akses hardware | Terbatas | Penuh |
+| NFS mount | Perlu konfigurasi tambahan | Langsung bisa |
+| Default Proxmox | Ya | Tidak |
+| Rekomendasi | Produksi & umum | Kasus khusus saja |
+
+## Perbandingan VM vs LXC
+
+Kapan Anda harus menggunakan VM dan kapan Anda harus memilih LXC? Tabel berikut membantu membandingkan kedua fitur tersebut.
+
+| Aspek | Virtual Machine (KVM) | LXC Container |
+|---|---|---|
+| Kernel | Memiliki kernel sendiri | Berbagi kernel host |
+| OS yang didukung | Linux, Windows, BSD, dll | Hanya Linux |
+| Isolasi | Penuh (hardware level) | Parsial (OS level) |
+| Performa | Sedikit overhead | Hampir setara native |
+| Waktu boot | 30 detik - beberapa menit | 1-5 detik |
+| Konsumsi RAM | Tinggi (OS + aplikasi) | Rendah (aplikasi saja) |
+| Penggunaan disk | Besar (full OS image) | Kecil (shared libraries) |
+| GPU passthrough | Didukung | Tidak didukung |
+| Nested virtualization | Didukung | Tidak didukung |
+| Snapshot & backup | Didukung | Didukung |
+| Live migration | Didukung | Didukung |
+| Cocok untuk | Windows Server, aplikasi butuh kernel khusus, GPU workload, isolasi penuh | Web server, DNS, database, lab Linux, microservices |
+
+### Rekomendasi penggunaan
+
+- Pilih **VM** jika Anda memerlukan OS Windows, sistem yang menggunakan kernel berbeda dari host, GPU passthrough, maupun isolasi perangkat keras total.
+- Pilih **LXC** jika Anda sekadar menjalankan servis Linux, memiliki resource yang relatif minim, butuh startup instan, atau ingin membuat sebuah lab praktik jaringan.

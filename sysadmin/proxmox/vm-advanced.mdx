@@ -1,0 +1,153 @@
+---
+title: "Konfigurasi Lanjutan Virtual Machine"
+description: "Panduan untuk melakukan konfigurasi lanjutan pada Virtual Machine (VM) di Proxmox VE."
+---
+
+Pada panduan ini, kamu akan belajar cara mengonfigurasi pengaturan lanjutan untuk Virtual Machine (VM) di Proxmox VE. Konfigurasi ini meliputi penambahan disk, pengaturan BIOS, optimalisasi RAM dan CPU, serta pemasangan perangkat fisik (passthrough) ke dalam VM.
+
+## Menambahkan Disk Tambahan
+
+Seiring dengan kebutuhan penyimpanan yang bertambah, kamu dapat menambahkan disk baru ke VM yang sudah ada.
+
+### Menambahkan Disk via Web UI
+
+1. Buka Proxmox Web UI, pilih VM target.
+2. Navigasi ke menu **Hardware**.
+3. Klik tombol **Add** dan pilih **Hard Disk**.
+4. Pilih **Storage**, tentukan **Disk size** (ukuran), dan pilih **Bus/Device** (disarankan `VirtIO` atau `SCSI` untuk performa terbaik).
+5. Klik **Add**.
+
+### Format dan Mount Disk di dalam VM (Linux)
+
+Setelah disk ditambahkan ke VM, disk tersebut perlu diformat dan di-mount di dalam sistem operasi VM.
+
+```bash
+# Cek daftar disk yang tersedia (contoh disk baru: /dev/vdb)
+lsblk
+
+# Buat partisi baru pada disk
+fdisk /dev/vdb
+
+# Format partisi dengan sistem file ext4
+mkfs.ext4 /dev/vdb1
+
+# Buat direktori untuk mount point
+mkdir /mnt/data
+
+# Mount partisi ke direktori yang dibuat
+mount /dev/vdb1 /mnt/data
+
+# Agar mount bertahan setelah reboot, tambahkan konfigurasi ke /etc/fstab
+echo '/dev/vdb1 /mnt/data ext4 defaults 0 2' >> /etc/fstab
+```
+
+## Mengganti BIOS ke UEFI (OVMF)
+
+Secara default, VM menggunakan BIOS SeaBIOS. Namun, beberapa skenario mengharuskan penggunaan UEFI, seperti instalasi Windows 11, PCIe passthrough, dan Secure Boot.
+
+> [!WARNING]
+> Mengubah tipe BIOS setelah OS terinstal dapat menyebabkan VM tidak bisa boot. Sebaiknya, tentukan tipe BIOS saat pembuatan VM.
+
+1. Pada Proxmox Web UI, pilih VM dan buka tab **Options**.
+2. Klik ganda pada opsi **BIOS**, lalu ubah ke **OVMF (UEFI)** dan klik **OK**.
+3. Beralih ke tab **Hardware**.
+4. Klik **Add** dan pilih **EFI Disk**.
+5. Pilih storage tempat EFI Disk akan disimpan.
+6. (Opsional) Jika menggunakan UEFI, sangat disarankan untuk mengatur **Machine** menjadi `q35` pada tab **Hardware** atau saat pembuatan VM di tab **System**.
+
+## Mengatur RAM
+
+Mengelola alokasi RAM yang efisien sangat penting agar performa VM dan host tetap stabil.
+
+Buka VM target, masuk ke menu **Hardware**, lalu klik ganda pada **Memory**.
+- **Memory (MiB)**: Jumlah total RAM maksimum yang dapat digunakan oleh VM.
+- **Minimum Memory**: Jumlah RAM minimum yang dialokasikan (hanya berlaku jika ballooning aktif).
+
+### Ballooning Device
+
+- **Aktif (centang)**: RAM bersifat dinamis. Proxmox dapat mengambil kembali RAM yang tidak digunakan oleh VM dan memberikannya ke VM lain. Menghemat resource host, namun performa bisa menjadi fluktuatif.
+- **Non-aktif (hapus centang)**: RAM bersifat *dedicated* atau *fixed*. VM akan selalu mendapatkan jumlah RAM penuh sesuai yang dialokasikan. Konfigurasi ini lebih stabil untuk beban kerja yang berat.
+
+> [!TIP]
+> **Rekomendasi**: Matikan opsi *ballooning* untuk VM produksi, *database server*, atau aplikasi yang membutuhkan performa konsisten.
+
+## Mengatur CPU secara Dedicated
+
+Pengaturan CPU yang tepat membantu memaksimalkan kinerja aplikasi yang berjalan di dalam VM.
+
+Buka VM target, pilih **Hardware**, dan klik ganda pada **Processors**.
+
+- **Cores**: Tentukan jumlah *core* CPU yang diberikan ke VM.
+- **CPU Type**:
+  - `host`: Memberikan performa terbaik dan fitur CPU lengkap dari *host*. (Kekurangan: VM tidak bisa di-*live migrate* ke node dengan CPU yang berbeda).
+  - `kvm64`: Tipe default yang memiliki tingkat kompatibilitas tinggi.
+  - `x86-64-v2-AES`: Memberikan keseimbangan antara kompatibilitas dan fitur instruksi modern.
+- **CPU Units**: Mengatur prioritas alokasi CPU dari host ke VM. Nilai default adalah 1024. Kamu bisa menaikkan nilai ini untuk VM dengan prioritas tinggi.
+- **NUMA**: Aktifkan opsi ini jika server fisikmu menggunakan arsitektur NUMA (*multi-socket* / lebih dari satu CPU fisik).
+
+### CPU Affinity (Pinning)
+
+Kamu dapat menggunakan fitur CPU affinity untuk mengunci vCPU ke *physical core* tertentu di *host*. Konfigurasi ini dilakukan melalui CLI (*Command Line Interface*):
+
+```bash
+# Contoh: Pin VM ID 100 ke CPU core 0, 1, 2, dan 3 di host
+qm set <vmid> -affinity 0-3
+```
+
+## Mounting Perangkat Fisik ke VM (Device Passthrough)
+
+Device Passthrough memungkinkan VM mengakses perangkat fisik di host secara langsung.
+
+### USB Passthrough
+
+Untuk melewatkan perangkat USB seperti *flash drive* atau printer ke VM:
+1. Buka VM -> **Hardware** -> **Add** -> **USB Device**.
+2. Pilih opsi untuk menambahkan berdasarkan **Use USB Vendor/Device ID** atau **Use USB Port**.
+3. Pilih perangkat yang ingin diteruskan.
+
+### Disk/Storage Passthrough (Raw Disk)
+
+Jika kamu ingin melewatkan *disk* fisik secara utuh ke VM, jalankan perintah berikut di CLI Proxmox:
+
+```bash
+# Cek dan salin ID dari disk fisik
+ls -la /dev/disk/by-id/
+
+# Tambahkan raw disk ke VM
+qm set <vmid> -scsi1 /dev/disk/by-id/<disk-id>
+```
+
+### PCI/PCIe Passthrough (GPU Passthrough)
+
+Digunakan untuk melewatkan GPU atau perangkat PCIe lainnya ke VM.
+
+**Prasyarat di Host Proxmox:**
+1. Pastikan CPU dan motherboard mendukung IOMMU (Intel VT-d atau AMD-Vi). Aktifkan IOMMU melalui BIOS *host*.
+2. Edit file GRUB: tambahkan `intel_iommu=on` atau `amd_iommu=on` di baris konfigurasi `/etc/default/grub`.
+3. Update GRUB dengan menjalankan `update-grub`.
+4. *Blacklist* driver GPU di host agar sistem operasi *host* tidak menggunakan GPU tersebut.
+5. Lakukan *Reboot* pada host Proxmox.
+
+**Konfigurasi di VM:**
+1. Pastikan VM menggunakan tipe **Machine**: `q35` dan **BIOS**: `OVMF (UEFI)`.
+2. Buka VM -> **Hardware** -> **Add** -> **PCI Device**.
+3. Pilih perangkat (GPU), dan centang opsi:
+   - **All Functions**
+   - **Primary GPU** (jika menggunakan passthrough untuk GPU utama)
+   - **PCI-Express**
+4. Setelah konfigurasi selesai, instal driver GPU yang sesuai di dalam VM.
+
+### Serial Port Passthrough
+
+Digunakan untuk meneruskan koneksi *serial* (misalnya: kabel *console* atau perangkat IoT) ke VM. Konfigurasi melalui CLI Proxmox:
+
+```bash
+qm set <vmid> -serial0 /dev/ttyUSB0
+```
+
+## Tips dan Catatan Penting
+
+- **Selalu buat backup** VM sebelum mengubah konfigurasi perangkat keras (*hardware*).
+- Beberapa perubahan konfigurasi memerlukan VM dalam keadaan mati (*shutdown*) agar dapat diterapkan dengan benar.
+- *PCIe passthrough* membutuhkan konfigurasi *IOMMU group* yang bersih.
+- **Tidak semua hardware mendukung passthrough**, periksa kompatibilitas perangkat sebelum melakukan konfigurasi.
