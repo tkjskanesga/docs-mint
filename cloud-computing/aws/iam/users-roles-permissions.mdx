@@ -7,7 +7,7 @@ Komponen inti AWS Identity and Access Management (IAM) terdiri dari **Users**, *
 
 ## IAM Users dan Groups
 
-**IAM User** adalah identitas persisten di AWS yang merepresentasikan entitas spesifik—baik individu manusia (seperti administrator atau *developer*) maupun layanan/aplikasi eksternal (seperti server *on-premise*) yang membutuhkan interaksi konstan dengan AWS.
+**IAM User** adalah identitas persisten di AWS yang merepresentasikan entitas spesifik baik individu manusia (seperti administrator atau *developer*) maupun layanan/aplikasi eksternal (seperti server *on-premise*) yang membutuhkan interaksi konstan dengan AWS.
 
 - **Kredensial Jangka Panjang:** IAM Users menggunakan kata sandi (*Password*) untuk akses konsol UI, dan pasangan *Access Key/Secret Key* untuk akses terprogram (API/CLI). Kredensial ini bersifat statis hingga diputar (dirotasi) secara manual.
 - **IAM Groups:** Praktik terbaik keamanan mendikte bahwa Anda tidak boleh mengaitkan *policy* langsung ke satu User. Alih-alih, kelompokkan User ke dalam **IAM Groups** berdasarkan fungsi pekerjaan (misal: `DatabaseAdmins`, `FrontendDevs`) dan terapkan *policy* pada grup tersebut.
