@@ -21,6 +21,11 @@
         "type": "button",
         "label": "Pengenalan Sekolah",
         "href": "https://tkjskanesga.github.io/pengenalan-sekolah"
+      },
+      {
+        "type": "button",
+        "label": "Repo dokumentasi",
+        "href": "https://tkjskanesga.github.io/pengenalan-sekolah"
       }
     ],
     "primary": {
@@ -53,7 +58,7 @@
           },
           {
             "label": "Aturan Jurusan TKJ",
-            "href": "/dokumentasi/rules"
+            "href": "/documentation/rules"
           }
         ]
       }
@@ -96,8 +101,14 @@
       {
         "tab": "Dokumentasi",
         "pages": [
-          "dokumentasi/overview",
-          "dokumentasi/rules"
+          "documentation/overview",
+          "documentation/rules",
+          {
+            "group": "Teknis",
+            "pages": [
+              "documentation/technical/"
+            ]
+          }
         ]
       },
       {
