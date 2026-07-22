@@ -2,9 +2,9 @@
   "theme": "mint",
   "name": "TKJ Skanesga Lab's",
   "colors": {
-    "primary": "#c28f17",
-    "light": "#ffdd80",
-    "dark": "#806d16"
+    "primary": "#5562ab",
+    "light": "#5766bd",
+    "dark": "#344082"
   },
   "logo": {
     "light": "/logo/icon-web.svg",
@@ -16,10 +16,16 @@
     "decoration": "gradient"
   },
   "navbar": {
-    "links": [],
+    "links": [
+      {
+        "type": "button",
+        "label": "Pengenalan Sekolah",
+        "href": "https://tkjskanesga.github.io/pengenalan-sekolah"
+      }
+    ],
     "primary": {
       "type": "button",
-      "label": "Profile",
+      "label": "Profile TKJ",
       "href": "https://tkjskanesga.github.io"
     }
   },
@@ -27,7 +33,31 @@
     "socials": {
       "github": "https://github.com/tkjskanesga",
       "instagram": "https://www.instagram.com/tkj.skanesga.official"
-    }
+    },
+    "links": [
+      {
+        "header": "Informasi",
+        "items": [
+          {
+            "label": "SMBP",
+            "href": "https://smkn1seyegan.sch.id"
+          }
+        ]
+      },
+      {
+        "header": "Jurusan TKJ",
+        "items": [
+          {
+            "label": "Portfolio Jurusan",
+            "href": "https://tkjskanesga.github.io"
+          },
+          {
+            "label": "Aturan Jurusan TKJ",
+            "href": "/dokumentasi/rules"
+          }
+        ]
+      }
+    ]
   },
   "fonts": {
     "family": "Inter"
@@ -69,7 +99,8 @@
           {
             "group": "Mulai",
             "pages": [
-              "dokumentasi/overview"
+              "dokumentasi/overview",
+              "dokumentasi/rules"
             ]
           }
         ]
@@ -86,7 +117,15 @@
           {
             "group": "Fundamental",
             "pages": [
-              "networking/fundamental/overview"
+              "networking/fundamental/overview",
+              "networking/fundamental/subnetting"
+            ]
+          },
+          {
+            "group": "Wireless",
+            "pages": [
+              "networking/wireless/overview",
+              "networking/wireless/rules"
             ]
           },
           {
@@ -109,13 +148,6 @@
             "pages": [
               "networking/cisco/overview",
               "networking/cisco/config"
-            ]
-          },
-          {
-            "group": "Wireless",
-            "pages": [
-              "networking/wireless/overview",
-              "networking/wireless/rules"
             ]
           }
         ]

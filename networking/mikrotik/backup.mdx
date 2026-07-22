@@ -14,12 +14,23 @@ Kamu perlu melakukan backup pada saat:
 
 MikroTik menyediakan dua metode utama untuk menyimpan konfigurasi, yaitu **Binary Backup** dan **Export Script**. Keduanya memiliki kegunaan dan karakteristik yang berbeda.
 
+Refrensi video bisa lihat dibawah ini :
+
+<iframe
+  className="w-full aspect-video rounded-xl"
+  src="https://www.youtube.com/embed/4e6wwXsiDu0"
+  title="YouTube video player"
+  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+  allowFullScreen
+></iframe>
+
 ## Binary Backup (.backup)
 
 Binary backup adalah metode penyimpanan yang menghasilkan file biner (berekstensi `.backup`). File ini menyimpan seluruh konfigurasi secara penuh, termasuk password, sertifikat keamanan, user management, dan MAC Address dari interface.
 
-> [!WARNING]
-> File `.backup` sebaiknya hanya di-restore ke router yang sama atau router lain dengan model fisik yang sama persis. Jika di-restore ke model yang berbeda, konfigurasi interface bisa berantakan.
+<Warning>
+  File `.backup` sebaiknya hanya di-restore ke router yang sama atau router lain dengan model fisik yang sama persis. Jika di-restore ke model yang berbeda, konfigurasi interface bisa berantakan.
+</Warning>
 
 ### Cara Melakukan Backup
 
@@ -39,8 +50,9 @@ Gunakan perintah berikut di terminal:
 
 ### Cara Melakukan Restore
 
-> [!NOTE]
-> Setelah proses restore selesai, router akan melakukan _reboot_ (restart) secara otomatis untuk menerapkan konfigurasi baru.
+<Note>
+  Setelah proses restore selesai, router akan melakukan _reboot_ (restart) secara otomatis untuk menerapkan konfigurasi baru.
+</Note>
 
 #### Via Winbox
 1. Buka menu **Files**.

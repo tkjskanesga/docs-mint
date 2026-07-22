@@ -1,0 +1,82 @@
+---
+title: 'Subnetting Dasar'
+description: 'Memahami dasar-dasar perhitungan subnet, network, host, dan broadcast'
+---
+
+Halo semuanya! Sebelum kita masuk ke dunia jaringan yang lebih dalam dan rumit, ada namanya **Subnetting**. Ibarat sebuah jalan perumahan, subnetting ini cara kita membagi-bagi jalan besar menjadi gang-gang kecil biar rumah-rumahnya (komputer) lebih rapi dan gampang dicari.
+
+<iframe
+  className="w-full aspect-video rounded-xl"
+  src="https://www.youtube.com/embed/l5vLxYrZAgA"
+  title="YouTube video player"
+  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+  allowFullScreen
+></iframe>
+
+## Apa itu Network, Host, dan Broadcast?
+
+Nah, di dalam sebuah "gang" jaringan (subnet), ada tiga jenis alamat (IP) yang punya tugas beda-beda. Yuk, pahami ketiganya:
+
+1. **Network (Jalan/Gang)**
+   Ini adalah nama gang-nya. Alamat ini **tidak bisa dipakai** oleh komputer atau HP kamu. Fungsi utamanya sebagai identitas sebuah kelompok jaringan. Biasanya IP ini selalu berada di urutan **paling pertama**.
+
+2. **Host (Rumah)**
+   Ini adalah alamat rumah-rumah yang ada di dalam gang tersebut. Nah, IP Host inilah yang **bisa kamu berikan** ke komputer, laptop, HP, atau router. Posisinya berada di antara Network dan Broadcast.
+
+3. **Broadcast (Toa Masjid/Pengumuman)**
+   Ini alamat spesial! Kalau kamu kirim pesan ke alamat ini, **semua orang** (semua komputer) di gang tersebut akan menerima pesan kamu. Alamat ini **tidak bisa dipakai** oleh komputer kamu dan posisinya selalu di urutan **paling terakhir**.
+
+## Memahami Subnet Mask dan Prefix
+
+Kalian mungkin pernah lihat IP diikuti angka seperti `/24`. Ini namanya Prefix atau panjang Subnet Mask.
+
+Pertanyaan bagus: *"Gimana sih cara ngitungnya? Kok bisa `255.255.255.0` jadi `/24`?"*
+
+Begini ceritanya. Alamat IPv4 itu terdiri dari 32 angka biner (angka 0 dan 1). Prefix `/24` berarti ada **24 buah angka 1** di depannya.
+
+Coba kita jabarkan jadi biner:
+`11111111 . 11111111 . 11111111 . 00000000`
+
+Setiap 8 angka biner (disebut 1 oktet) kita ubah ke angka desimal biasa:
+- `11111111` = 255
+- `11111111` = 255
+- `11111111` = 255
+- `00000000` = 0
+
+Maka, jadilah **255.255.255.0**!
+
+<Note>
+  **Miskonsepsi yang sering terjadi:** 
+  
+  Kadang orang bingung dengan `255.255.254.0`. Kalau kamu ubah ke biner, jadinya: `11111111 . 11111111 . 11111110 . 00000000` Coba hitung angka 1-nya, ada 23 kan? Berarti `255.255.254.0` itu pasangannya adalah **`/23`**, bukan `/24`.
+</Note>
+
+## Cara Menghitung Network, Host, dan Broadcast
+
+Biar lebih paham, kita langsung pakai contoh kasus ya! 
+Katakanlah kita punya IP `192.168.1.10/24`. Kita mau cari Network, Broadcast, dan rentang Host yang bisa dipakai.
+
+**Langkah 1: Cek Subnet Mask**
+Karena pakai `/24`, subnet mask-nya adalah `255.255.255.0`.
+
+**Langkah 2: Cari Blok Subnet**
+Rumusnya gampang banget! `256 - Angka terakhir subnet mask`.
+`256 - 0 = 256`
+Berarti satu blok jaringan (satu gang) ini isinya ada 256 alamat. Bloknya mulai dari kelipatan 256 (yaitu 0).
+
+**Langkah 3: Tentukan Network dan Broadcast**
+- **Network**: IP paling pertama dari blok tersebut. Karena dimulai dari 0, maka IP Network-nya adalah **192.168.1.0**.
+- **Broadcast**: IP terakhir sebelum masuk ke blok gang berikutnya. Karena ukuran blok 256 (berakhir di 255), maka IP Broadcast-nya adalah **192.168.1.255**.
+
+**Langkah 4: Tentukan Range Host**
+Host itu di antara Network dan Broadcast. 
+- Host pertama: Network + 1 = **192.168.1.1**
+- Host terakhir: Broadcast - 1 = **192.168.1.254**
+
+**Kesimpulan untuk `192.168.1.10/24`:**
+- **Network IP**: `192.168.1.0`
+- **Range IP Host**: `192.168.1.1` sampai `192.168.1.254`
+- **Broadcast IP**: `192.168.1.255`
+- IP `192.168.1.10` milik kita berada dengan aman di dalam *Range IP Host* tadi.
+
+Gimana? Cukup mudah dipahami kan? Ingat saja konsep Gang (Network), Rumah (Host), dan Toa Pengumuman (Broadcast) ini setiap kali kamu main-main dengan jaringan.
