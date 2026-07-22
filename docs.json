@@ -25,7 +25,7 @@
       {
         "type": "button",
         "label": "Repo dokumentasi",
-        "href": "https://tkjskanesga.github.io/pengenalan-sekolah"
+        "href": "https://github.com/tkjskanesga/docs-mint"
       }
     ],
     "primary": {
@@ -105,8 +105,9 @@
           "documentation/rules",
           {
             "group": "Teknis",
+            "icon": "bookmark",
             "pages": [
-              "documentation/technical/"
+              "documentation/technical/equipment-rental-via-the-website"
             ]
           }
         ]
