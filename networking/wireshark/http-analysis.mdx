@@ -1,0 +1,53 @@
+---
+title: 'Filter, Sniffing & HTTP'
+description: 'Menyaring paket data dan membongkar rahasia di dalam HTTP'
+---
+
+Di halaman sebelumnya kamu pasti kaget lihat ribuan baris data yang muncul di layar Wireshark, kan?
+Tenang, detektif yang pintar nggak ngecek semua barang bukti satu per satu. Mereka pakai kaca pembesar khusus yang namanya **Filter**.
+
+Di atas daftar paket yang warna-warni itu, ada kotak panjang bertuliskan `Apply a display filter ...`. Itulah senjata utama kita!
+
+---
+
+## 1. Belajar Memfilter (Menyaring Paket)
+
+Ketikkan perintah ini di kotak filter lalu tekan `Enter` untuk merapikan datanya.
+
+- **Filter berdasarkan Layanan (Protokol):**
+  - Ketik `http` : Cuma nampilin data yang berhubungan dengan website (HTTP).
+  - Ketik `dns` : Cuma nampilin data pencarian nama domain.
+  - Ketik `tcp` / `udp` / `icmp` (buat PING).
+
+- **Filter berdasarkan IP (Target Operasi):**
+  - `ip.addr == 192.168.1.10` : Cuma nampilin obrolan dari dan menuju IP tersebut.
+  - `ip.src == 192.168.1.10` : Cuma nampilin paket yang DIKIRIM (Source) oleh IP itu.
+  - `ip.dst == 192.168.1.10` : Cuma nampilin paket yang MENUJU (Destination) ke IP itu.
+
+- **Kombinasi Filter (Jurus Pamungkas):**
+  - `http and ip.addr == 192.168.1.10` (Hanya nampilin web HTTP dari IP tertentu).
+
+---
+
+## 2. Sniffing & Analisa Paket HTTP
+
+Oke, sekarang saatnya praktek nangkep maling! Kita akan membuktikan kenapa HTTP (tanpa 's') itu sangat **TIDAK AMAN**.
+
+**Langkah Praktek:**
+1. Buka Wireshark, pilih interface Wi-Fi/Ethernet, lalu klik tombol sirip hiu biru (🦈) di kiri atas untuk **Start Capturing**.
+2. Buka browser komputermu (Chrome/Firefox).
+3. Buka website login yang belum aman (masih HTTP biasa). *Contohnya bisa pakai website buatan sendiri untuk praktek di lab sekolah.*
+4. Cobalah login dengan memasukkan *Username* (misal: `admin`) dan *Password* (misal: `rahasiabanget`). Lalu klik Submit.
+5. Kembali ke Wireshark, klik tombol kotak merah (🛑) untuk **Stop**.
+
+**Cara Menganalisanya:**
+1. Di kotak Filter Wireshark, ketikkan: `http.request.method == "POST"`
+   *(Metode POST biasanya dipakai saat kita mengirim form/login).*
+2. Kamu akan menemukan satu atau dua baris yang tersisa. Klik salah satu paket tersebut.
+3. Di panel bagian bawah (Panel Details), cari dan luaskan menu **HTML Form URL Encoded: application/x-www-form-urlencoded**.
+4. **BOOM!** Kamu bisa melihat dengan jelas tulisan `Username: admin` dan `Password: rahasiabanget` tanpa disensor sama sekali!
+
+> 🚨 **Peringatan Keamanan!**
+> Bayangkan kalau kamu lagi nongkrong di cafe, pakai Wi-Fi publik, dan login ke website HTTP biasa. *Hacker* yang ada di sebelahmu bisa dengan santai pakai Wireshark dan melihat password-mu! Makanya sekarang hampir semua web wajib pakai **HTTPS** (karena datanya dienkripsi dan nggak bisa dibaca di Wireshark).
+
+Seru banget kan jadi SysAdmin? Jangan dipakai buat iseng nyadap teman ya, gunakan ilmu ini untuk mengamankan jaringan sekolahmu!

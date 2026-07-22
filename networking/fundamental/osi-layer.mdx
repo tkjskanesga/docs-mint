@@ -1,0 +1,58 @@
+---
+title: '7 OSI Layer'
+description: 'Konsep dasar gimana komputer bisa saling ngobrol dari awal sampai akhir'
+---
+
+Pernah kepikiran nggak, kok bisa sih pas kamu pencet kirim pesan WA, tiba-tiba di HP temanmu muncul tulisannya? Padahal HP kalian beda merek, beda sistem operasi, bahkan beda negara!
+
+Nah, rahasianya ada di sebuah aturan standar internasional yang namanya **OSI Model (Open Systems Interconnection)**. OSI ini membagi proses pengiriman data jadi **7 lapisan (layer)**. 
+
+Biar gampang, bayangin aja OSI Layer ini kayak proses **mengirim paket barang lewat kurir**. Yuk kita bahas dari lapisan paling atas (di komputermu) sampai paling bawah (di kabel)!
+
+---
+
+## Lapisan Atas (Upper Layers) - Urusan Aplikasi
+
+Ini adalah area yang langsung berinteraksi dengan kita sebagai pengguna.
+
+### 7. Application Layer (Lapisan Aplikasi)
+Ini adalah "aplikasinya" langsung. Tempat di mana kamu ngetik pesan, buka browser, atau buka email. 
+> *Contoh: WhatsApp, Google Chrome, Mozilla Firefox.*
+
+### 6. Presentation Layer (Lapisan Presentasi)
+Data dari aplikasi tadi bakal diterjemahkan dan "dibungkus" rapi. Kalau perlu dienkripsi (biar aman) atau dikompres (biar ukuran kecil), di sinilah tempatnya. 
+> *Ibarat: Paket barangmu dimasukkan ke dalam kardus, dilakban, trus ditutup rapat.*
+
+### 5. Session Layer (Lapisan Sesi)
+Layer ini yang buka obrolan sama komputer tujuan. Dia yang nentuin kapan obrolan dimulai, dijaga biar nggak putus, dan kapan obrolan ditutup. 
+> *Ibarat: Nelpon abang kurir buat konfirmasi, "Bang, ini ada paket ya, tolong standby."*
+
+---
+
+## Lapisan Bawah (Lower Layers) - Urusan Transportasi Data
+
+Mulai dari sini, data udah murni urusan mesin dan perangkat jaringan.
+
+### 4. Transport Layer (Lapisan Transportasi)
+Paket yang udah dibungkus tadi bakal dipecah jadi potongan-potongan kecil (disebut Segment) biar gampang dikirim. Di sini juga ditentuin cara kirimnya mau yang "Pasti Sampai" (TCP) atau "Yang Penting Cepat" (UDP).
+> *Ibarat: Kardus gede tadi dibagi ke beberapa motor kurir biar muat.*
+
+### 3. Network Layer (Lapisan Jaringan)
+Nah, di sinilah **IP Address** bermain! Pecahan data tadi dikasih alamat asal dan alamat tujuan, trus dicari rute jalan tercepat. (Alat yang main di sini adalah **Router**).
+> *Ibarat: Abang kurir nulis alamat rumah kamu dan buka Google Maps buat cari jalan paling cepat.*
+
+### 2. Data Link Layer (Lapisan Data Link)
+Alamat IP diubah jadi alamat fisik (**MAC Address**). Di sini juga dikasih sistem pengecekan biar tahu ada data yang rusak nggak di jalan. (Alat yang main di sini adalah **Switch**).
+> *Ibarat: Abang kurir ngecek plat nomor motornya sama nomor polisi sebelum berangkat.*
+
+### 1. Physical Layer (Lapisan Fisik)
+Akhirnya, data diubah jadi wujud fisik (bisa sinyal listrik di kabel tembaga, kedipan cahaya di fiber optik, atau gelombang radio di Wi-Fi) dan dikirim deh!
+> *Ibarat: Motor kurir melaju di jalan aspal menuju rumah temanmu.*
+
+---
+
+**Singkatnya gimana prosesnya?**
+Waktu kamu **mengirim**, data berjalan dari atas ke bawah (Layer 7 ke Layer 1).
+Waktu temanmu **menerima**, data berjalan sebaliknya dari bawah ke atas (Layer 1 dirakit balik sampai muncul di Layer 7 HP temanmu).
+
+Kelihatannya ribet banget ya? Tapi hebatnya, komputer kita melakukan semua 7 langkah ini cuma dalam hitungan milidetik lho! Keren kan?

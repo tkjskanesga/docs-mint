@@ -1,0 +1,48 @@
+---
+title: 'Keamanan Dasar'
+description: 'Mengenal satpam dan tameng pelindung di dunia jaringan komputer'
+---
+
+Halo calon SysAdmin dan Network Engineer! Punya jaringan yang cepat aja nggak cukup kalau nggak **aman**. Di internet, banyak banget *hacker* iseng, virus, atau program jahat yang siap nyusup ke server sekolah kita.
+
+Makanya, kita butuh sistem keamanan dasar. Yuk, kenalan sama "satpam-satpam" jaringan ini!
+
+---
+
+## 1. Firewall (Si Satpam Gerbang)
+**Firewall** ibarat satpam garang yang jaga pintu gerbang sekolah. Dia tugasnya ngecek siapa aja yang boleh masuk dan siapa aja yang boleh keluar.
+
+Aturan kerjanya dibagi dua arah:
+- **Inbound (Arah Masuk):** Aturan buat tamu dari luar (internet) yang mau masuk ke komputer kita. Misalnya: *"Satpam, tolong blokir siapa pun dari luar yang mau nge-remote komputer server, KECUALI dia pakai jalur SSH!"*
+- **Outbound (Arah Keluar):** Aturan buat kita (dari dalam) yang mau akses ke luar. Misalnya: *"Satpam, tolong jangan izinkan siswa akses ke website game saat jam pelajaran!"*
+
+## 2. Next-Gen Firewall (NGFW - Satpam Pintar)
+Kalau Firewall biasa cuma ngecek dari "bungkus" depannya aja, **Next-Gen Firewall (NGFW)** ini satpam yang super pintar! 
+Dia bisa buka bungkus datanya, ngecek isinya ada virus atau enggak, bahkan tahu aplikasi apa yang lagi dipakai. NGFW bisa bedain mana akses Google biasa dan mana yang Google buat download file terlarang!
+
+---
+
+## 3. Port & Socket (Pintu-Pintu Ruangan)
+Di jaringan, data yang masuk ke komputer harus tahu mau masuk ke "ruangan" aplikasi yang mana. Nah, nomor ruangan inilah yang disebut **Port**.
+
+Contoh Port Populer:
+- **Port 80 & 443:** Ruangan untuk Website (HTTP & HTTPS)
+- **Port 22:** Ruangan untuk remote aman (SSH)
+- **Port 53:** Ruangan buku telepon (DNS)
+
+**Socket** adalah gabungan antara Alamat Rumah (IP Address) dan Nomor Ruangan (Port). 
+Contohnya: `192.168.1.10:80`. Artinya, kita mau kirim data ke komputer `192.168.1.10` lalu masuk lewat pintu website (Port `80`).
+
+> **Aturan Keamanan:** Port (pintu) yang nggak dipakai **wajib ditutup/dikunci** oleh Firewall biar nggak disusupi maling!
+
+---
+
+## 4. Enkripsi Dasar (SSL/TLS - Si Tulisan Sandi)
+Pernah main kode rahasia sama teman sekelas biar obrolannya nggak ketahuan guru? Nah, itu namanya **Enkripsi**!
+
+Enkripsi paling umum di jaringan adalah **SSL (Secure Sockets Layer)** atau yang sekarang lebih modern disebut **TLS (Transport Layer Security)**. 
+- Fungsi utamanya mengacak data. Misalnya kamu ngetik password `SkanesgaJaya`, oleh SSL akan diacak jadi `X9a#k1PzQ!`.
+- Jadi kalau ada *hacker* yang berhasil nyadap kabel di tengah jalan, mereka cuma bakal dapet teks berantakan yang nggak bisa dibaca. 
+- Inilah rahasia di balik awalan `https://` yang aman!
+
+Sebagai anak IT, wajib hukumnya mikirin keamanan dari sekarang ya. *Security first!*

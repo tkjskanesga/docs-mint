@@ -1,0 +1,52 @@
+---
+title: 'Layanan Jaringan (Services)'
+description: 'Mengenal protokol dan layanan yang bikin internet kita hidup dan bisa dipakai'
+---
+
+Halo sobat jaringan! Kalau kita udah punya jalan raya (kabel/wifi) dan kendaraan (router/switch), kita juga butuh "Layanan Jasa" yang mondar-mandir bawa berbagai macam barang. Di dunia jaringan, layanan-layanan ini disebut **Protokol / Services**.
+
+Biar nggak pusing, yuk kita kenalan sama layanan-layanan yang paling sering kalian temui pas praktek nanti!
+
+---
+
+## 1. TCP & UDP (Si Jasa Pengiriman)
+Ini adalah dua metode pengiriman paket data di jaringan (berada di Layer 4 Transport).
+
+- **TCP (Transmission Control Protocol):** Pengiriman **VIP dan Garansi**. Kalau data gagal sampai, bakal dikirim ulang. Sangat aman dan pasti utuh, tapi agak lambat. *(Cocok buat buka web, kirim file, atau email).*
+- **UDP (User Datagram Protocol):** Pengiriman **Ngebut Tanpa Garansi**. Yang penting data terkirim secepat mungkin, bodo amat kalau di jalan ada yang hilang dikit. *(Cocok buat Streaming YouTube, Video Call, atau Main Game Online).*
+
+---
+
+## 2. DNS (Si Buku Telepon)
+**DNS (Domain Name System)** adalah pahlawan tanpa tanda jasa!
+Komputer itu cuma ngerti angka (IP Address), contohnya `142.250.191.46`. Tapi kan manusia susah ya ngapalin angka-angka itu? 
+Nah, DNS bertugas menerjemahkan IP tersebut jadi nama yang gampang diingat, yaitu **`google.com`**.
+
+---
+
+## 3. DHCP (Si Pembagi IP Otomatis)
+**DHCP (Dynamic Host Configuration Protocol)** adalah panitia yang bertugas ngebagiin nomor kursi (IP Address) ke peserta (komputer/HP).
+Bayangin kalau di sekolah ada 1000 HP siswa yang konek Wi-Fi, masa adminnya mau masukin IP Address satu-satu secara manual? Pegel bos! Makanya pakai DHCP, begitu HP konek, langsung dapet IP otomatis.
+
+---
+
+## 4. SSH & Telnet (Si Remote Jarak Jauh)
+Kalau kalian jadi admin server, kalian nggak perlu ke ruang server yang dingin banget buat setting komputer. Kalian bisa nyalakan laptop di kelas sambil minum es teh, trus remote (kendalikan) server dari jauh!
+
+- **Telnet:** Versi jadul, kurang aman karena datanya nggak disensor (enggak dienkripsi).
+- **SSH (Secure Shell):** Versi modern dan sangat amat **aman**. Semua perintah yang kalian ketik akan dienkripsi jadi kode rahasia. Anak TKJ wajib jago pakai SSH!
+
+---
+
+## 5. HTTP & HTTPS (Si Pengantar Halaman Web)
+Ini adalah layanan yang paling sering kalian pakai tiap buka browser.
+- **HTTP (Hypertext Transfer Protocol):** Protokol standar untuk buka website. Masalahnya, data yang lewat sini nggak dikunci. Kalau kamu login pakai HTTP, password kamu bisa gampang dicolong orang!
+- **HTTPS (HTTP Secure):** Nah ini versi amannya! Ada tambahan gembok `Secure` (biasanya ikon gembok hijau di browser). Semua data belanja, password, dan chat kalian aman terenkripsi.
+
+---
+
+## 6. DoH & DoT (DNS Era Modern)
+Kalau tadi DNS itu buku telepon, kelemahannya orang di jalan bisa ngintip kamu lagi nyari nomornya siapa.
+- **DoH (DNS over HTTPS)** dan **DoT (DNS over TLS):** Ini adalah teknologi DNS baru yang dienkripsi (dibungkus rapat). Jadi, nggak ada yang tahu kamu lagi buka website apa, bahkan provider internet (ISP) atau guru kamu sendiri pun kesulitan ngelacaknya! Privasi tingkat tinggi nih!
+
+Di materi TKJ nanti, kita akan coba praktek bikin server dari semua layanan keren ini! Semangat ya!

@@ -1,0 +1,50 @@
+---
+title: 'Pengenalan Wireshark'
+description: 'Menjadi detektif jaringan dan membedah isi lalu lintas data!'
+---
+
+Pernah berkhayal jadi agen rahasia atau detektif yang bisa menyadap pembicaraan orang? Di dunia jaringan, kamu bisa melakukannya! 
+Kenalkan, alat tempur wajib para Network Engineer dan *Hacker* (yang baik hati): **Wireshark**.
+
+Wireshark ini aplikasi **Packet Analyzer**. Artinya, dia bisa menangkap (sniffing) dan menampilkan *semua* data yang lalu-lalang di jaringan komputermu secara *real-time*.
+
+## Kenapa Harus Belajar Wireshark?
+
+Ibarat jalan tol, PING atau Traceroute itu cuma nanya *"Jalannya lancar nggak?"*. 
+Tapi dengan Wireshark, kamu bisa nanya: 
+*"Siapa aja yang lewat di jalan tol ini? Mobilnya merek apa? Dia bawa barang apa di bagasinya?"* 
+
+Dengan Wireshark, anak TKJ bisa:
+1. Melacak kenapa sebuah web nggak bisa dibuka padahal PING-nya jalan.
+2. Mempelajari cara kerja protokol (TCP, DNS, HTTP) dengan melihat isinya langsung.
+3. Mencari *celah keamanan* (misal: password yang dikirim tanpa enkripsi).
+
+---
+
+## Cara Install Wireshark
+
+Gampang banget kok! Aplikasi ini gratis (Open Source).
+1. Buka website resminya di [wireshark.org](https://www.wireshark.org/)
+2. Download installer sesuai sistem operasi kamu (Windows atau macOS). Kalau pakai Linux, bisa langsung `sudo apt install wireshark`.
+3. Pas instalasi di Windows, **pastikan kamu mencentang "Install Npcap"**. Npcap ini adalah *driver* penting yang bikin komputermu bisa menangkap paket data dari kabel atau Wi-Fi.
+
+---
+
+## Cara Menggunakan (First Run!)
+
+Udah diinstall? Yuk kita tes tangkap ikan (paket) pertama kita!
+
+1. **Buka Aplikasi Wireshark.**
+   Di halaman awal, kamu akan melihat daftar kartu jaringan (Network Interface) yang ada di komputermu. Ada Wi-Fi, Ethernet, dll.
+   
+2. **Pilih Jalur yang Mau Disadap.**
+   Perhatikan grafik kecil di sebelah nama-nama antarmuka (interface). Grafik yang naik turun berarti sedang ada lalu lintas data di situ.
+   Klik ganda (double-click) pada antarmuka yang kamu pakai (misalnya **Wi-Fi**).
+
+3. **Banjir Data! (Capture Mode)**
+   Boom! Kamu akan melihat layar yang terus bergulir dengan cepat penuh dengan warna-warni dan tulisan aneh. Itulah paket data komputermu yang sedang dikirim dan diterima dalam hitungan milidetik.
+   
+4. **Stop Dulu Detektif!**
+   Biar nggak pusing, klik tombol kotak merah (🛑) di pojok kiri atas untuk **Stop Capturing**. 
+
+Selamat! Kamu baru saja melakukan *Sniffing* pertamamu. Di halaman selanjutnya, kita akan belajar cara "menyaring" dan menganalisa tumpukan data yang pusingin ini!

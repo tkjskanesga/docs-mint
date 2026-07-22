@@ -95,14 +95,15 @@
     "tabs": [
       {
         "tab": "Dokumentasi",
-        "groups": [
-          {
-            "group": "Mulai",
-            "pages": [
-              "dokumentasi/overview",
-              "dokumentasi/rules"
-            ]
-          }
+        "pages": [
+          "dokumentasi/overview",
+          "dokumentasi/rules"
+        ]
+      },
+      {
+        "tab": "Eksperiment (Luar Materi)",
+        "pages": [
+          "experimental/doh-on-mikrotik"
         ]
       },
       {
@@ -118,7 +119,19 @@
             "group": "Fundamental",
             "pages": [
               "networking/fundamental/overview",
-              "networking/fundamental/subnetting"
+              "networking/fundamental/subnetting",
+              "networking/fundamental/devices",
+              "networking/fundamental/osi-layer",
+              "networking/fundamental/common-services",
+              "networking/fundamental/basic-security",
+              "networking/fundamental/troubleshooting"
+            ]
+          },
+          {
+            "group": "Wireshark",
+            "pages": [
+              "networking/wireshark/overview",
+              "networking/wireshark/http-analysis"
             ]
           },
           {

@@ -1,0 +1,114 @@
+---
+title: "Konfigurasi DNS over HTTPS (DoH) pada MikroTik"
+description: "Panduan lengkap mulai dari dasar teori hingga langkah-langkah mengamankan kueri DNS menggunakan protokol DoH di perangkat MikroTik."
+keywords: ['configuration', 'setup', 'getting started']
+tag: "Mikrotik"
+---
+
+<Info icon="user">
+   Refrensi: [sh.lenaca.workers.dev/artikel-doh-on-mikrotik](https://sh.lenaca.workers.dev/artikel-doh-on-mikrotik) <br />
+   Ditulis oleh: [@ernestoyoofi](https://github.com/ernestoyoofi)
+</Info>
+
+Mengamankan privasi jaringan adalah salah satu langkah penting dalam pengelolaan infrastruktur saat ini. Namun, sebelum kita masuk ke tahap konfigurasi pada MikroTik, ada baiknya kita memahami terlebih dahulu konsep dasar dari teknologi ini.
+
+## Memahami Dasar-Dasar DoH
+
+### Apa itu DNS over HTTPS (DoH)?
+
+Sebelum membahas DoH, kita perlu mengingat kembali apa itu **DNS (Domain Name System)**. Sederhananya, DNS adalah "buku telepon" internet. Ketika Anda mengetikkan nama situs web seperti `google.com`, DNS akan menerjemahkannya menjadi alamat IP (misalnya `142.250.191.46`) yang bisa dipahami oleh komputer.
+
+**DNS over HTTPS (DoH)** adalah teknologi yang melakukan kueri DNS tersebut, namun membungkusnya di dalam protokol HTTPS yang terenkripsi. 
+
+### Apa Bedanya dengan DNS Biasa?
+
+- **DNS Biasa (Traditional DNS):** Mengirimkan kueri secara *plaintext* (teks terbuka) melalui port 53. Ini berarti siapa pun yang berada di jalur jaringan Anda—mulai dari admin jaringan, penyedia layanan internet (ISP), hingga peretas di Wi-Fi publik—bisa dengan mudah melihat situs web apa saja yang sedang Anda minta, dan bahkan berpotensi memanipulasinya.
+- **DNS over HTTPS (DoH):** Mengirimkan kueri secara rahasia melalui jalur terenkripsi menggunakan port 443 (sama seperti Anda membuka web aman berlambang gembok). Bagi pengamat jaringan, kueri DNS Anda hanya akan terlihat seperti lalu lintas internet biasa, sehingga mereka tidak bisa mengintip isinya.
+
+### Mengapa Kita Perlu Menggunakan DoH?
+
+Ada beberapa alasan kuat mengapa implementasi DoH sangat disarankan saat ini:
+
+1. **Privasi yang Terjaga:** ISP atau pihak ketiga tidak dapat lagi memantau, mencatat, atau menjual daftar penelusuran web Anda berdasarkan kueri DNS.
+2. **Keamanan Ekstra (Anti DNS Spoofing):** Karena datanya terenkripsi, peretas (hacker) tidak bisa mencegat kueri DNS Anda di tengah jalan dan membelokkannya ke situs web palsu (misalnya situs *phishing* yang menyerupai bank).
+3. **Melewati Sensor Dasar:** Beberapa pemblokiran situs web oleh penyedia jaringan masih mengandalkan manipulasi pada level DNS biasa. Dengan DoH, karena kuerinya disembunyikan dalam HTTPS, Anda sering kali bisa melewati pemblokiran tersebut.
+
+### Kenapa Harus Memakai Sertifikat?
+
+Karena DoH berjalan di atas HTTPS, ia membutuhkan lapisan keamanan berbasis TLS (Transport Layer Security). Untuk membangun koneksi TLS yang aman, klien (dalam hal ini router MikroTik) harus memastikan bahwa server DoH yang diajak berkomunikasi benar-benar server asli (misalnya milik Cloudflare), bukan server peretas yang sedang menyamar. 
+
+**Sertifikat Root (*Certificate Authority*)** berfungsi layaknya "KTP resmi". Dengan adanya sertifikat ini di dalam sistem MikroTik, router dapat memvalidasi keaslian server DoH dan terhindar dari jebakan server palsu.
+
+### Apakah Ada Alternatif Selain DoH?
+
+Ya, jika kita berbicara tentang mengenkripsi DNS, kita juga mengenal **DNS over TLS (DoT)**. Keduanya mengenkripsi DNS agar tidak bisa diintip, namun pendekatannya sedikit berbeda:
+- **DoH** menggunakan port 443, sehingga ia "berbaur" dengan lalu lintas *web browsing* pada umumnya. Ini membuatnya sangat sulit diblokir tanpa ikut mematikan akses internet secara keseluruhan.
+- **DoT** menggunakan port khusus, yaitu 853. Meskipun secara enkripsi sangat aman, hal ini membuatnya sangat mudah diidentifikasi dan diblokir oleh admin jaringan jika mereka tidak menyukainya.
+
+---
+
+## Panduan Konfigurasi DoH pada MikroTik
+
+Sekarang kita sudah menguasai konsep dasarnya. Mari kita mulai mengonfigurasi DoH pada perangkat MikroTik Anda. Sebelum memulai, pastikan perangkat Anda menggunakan **RouterOS versi 6.47 atau yang lebih baru**.
+
+## 1. Mengunduh dan Mengimpor Sertifikat Root
+
+Agar MikroTik dapat memastikan keabsahan koneksi ke server DoH, router memerlukan sertifikat keamanan (Certificate Authority).
+
+1. Buka antarmuka Terminal pada MikroTik Anda.
+2. Unduh daftar sertifikat root publik menggunakan perintah berikut:
+   ```routeros
+   /tool fetch url=https://curl.se/ca/cacert.pem
+   ```
+   
+   ![Unduh sertifikat](/image/experimental/doh-on-mikrotik-1.png)
+
+3. Setelah proses unduhan selesai, impor sertifikat tersebut ke dalam sistem:
+   ```routeros
+   /certificate import file-name=cacert.pem passphrase=""
+   ```
+      
+   ![Pasang sertifikat](/image/experimental/doh-on-mikrotik-2.png)
+
+Proses ini mungkin membutuhkan waktu beberapa saat, karena router akan memuat cukup banyak daftar sertifikat ke dalam memorinya.
+
+## 2. Mengatur Static DNS untuk Server DoH
+
+Router membutuhkan alamat IP dari server DoH sebelum dapat memanggil nama domainnya (seperti `cloudflare-dns.com`). Oleh karena itu, kita perlu memasukkan entri statis pada pengaturan DNS.
+
+Pada panduan ini, kita akan menggunakan layanan DoH milik Cloudflare sebagai contoh. Silakan jalankan perintah ini:
+```routeros
+/ip dns static add name=cloudflare-dns.com address=104.16.249.249
+/ip dns static add name=cloudflare-dns.com address=104.16.248.249
+```
+
+![Tambahkan DNS Static Untuk Resolve Domain Pada DoH](/image/experimental/doh-on-mikrotik-3.png)
+
+*Catatan: Anda juga dapat menggunakan penyedia layanan DoH lain, seperti Google atau Quad9, sesuai dengan preferensi keamanan yang ada.*
+
+## 3. Mengaktifkan Fungsi DoH
+
+Setelah sertifikat terpasang dan alamat IP server diketahui, langkah berikutnya adalah mengaktifkan fitur DoH di router.
+
+Gunakan perintah di bawah ini untuk mengatur URL server DoH. Pastikan Anda juga mengaktifkan `allow-remote-requests` agar perangkat klien di jaringan lokal dapat ikut menikmati layanan DNS ini dari router:
+
+```routeros
+/ip dns set use-doh-server=https://cloudflare-dns.com/dns-query verify-doh-cert=yes allow-remote-requests=yes
+```
+
+![Pasang DoH Cloudflare](/image/experimental/doh-on-mikrotik-4.png)
+
+Untuk memastikan konfigurasi bersih dari sisa-sisa kueri sebelumnya, sangat disarankan untuk menghapus *cache* DNS lama yang tidak terenkripsi:
+```routeros
+/ip dns cache flush
+```
+
+## 4. Pengujian Konfigurasi
+
+Sampai pada tahap ini, konfigurasi DoH Anda telah selesai. Untuk memastikannya berjalan dengan baik, Anda dapat melakukan pengecekan sederhana:
+
+1. Buka menu **IP > DNS** pada aplikasi Winbox.
+2. Pastikan parameter **Use DoH Server** sudah terisi dengan URL yang dikonfigurasi.
+3. Anda juga dapat memantau tabel koneksi (Connections) di menu **IP > Firewall**. Anda akan melihat bahwa kueri dari router kini tidak lagi melalui port 53 (UDP), melainkan diteruskan melalui port 443 (HTTPS) ke server DoH.
+
+Penerapan DoH memberikan lapisan keamanan tambahan yang cukup esensial untuk standar keamanan modern. Silakan uji coba panduan ini di lingkungan lab terlebih dahulu sebelum menerapkannya secara luas di jaringan produksi.

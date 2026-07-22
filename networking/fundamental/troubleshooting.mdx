@@ -1,0 +1,46 @@
+---
+title: 'Troubleshooting Jaringan'
+description: 'Cara ampuh jadi dokter jaringan, periksa dan obati koneksi yang bermasalah!'
+---
+
+"Aduh Pak, internetnya mati nih!" 
+Pernah denger keluhan kayak gitu? Tenang, sebagai anak TKJ kamu adalah **Dokter Jaringan**. Kalau ada masalah koneksi, kita nggak usah panik. Ada alat-alat (perintah) andalan yang bisa kita pakai buat ngecek penyakitnya di mana.
+
+Semua perintah ini dijalankan lewat **Command Prompt (CMD)** di Windows atau **Terminal** di Linux ya!
+
+---
+
+## 1. PING (Si Cek Ombak)
+Perintah paling wajib! Ibarat kamu teriak *"Halo bro!"* ke teman di ujung kelas, dan nunggu dia jawab *"Oy, ada apa!"*.
+
+- **Cara pakai:** `ping 8.8.8.8` atau `ping google.com`
+- **Fungsi:** Buat ngecek apakah komputer tujuan hidup, dan komputermu bisa nyambung ke dia atau enggak.
+- **Hasil:** Kalau *Reply from...* berarti sukses. Kalau *Request timed out (RTO)* atau *Destination host unreachable*, nah... fix ada yang putus di jalan!
+
+## 2. Traceroute / Tracert (Jejak Si Bolang)
+Kalau PING cuma ngecek ujung ke ujung, perintah ini dipakai buat ngelacak **lewat jalan mana aja** paketmu sampai ke tujuan.
+
+- **Cara pakai:** `tracert google.com` (Windows) / `traceroute google.com` (Linux)
+- **Fungsi:** Ngelihat satu-satu Router mana yang dilewati. Kalau misalnya koneksi ke Google mati, lewat perintah ini kita bisa tahu matinya di router sekolah, di kabel Telkom, atau emang server Google-nya yang down.
+- **Bonus Linux:** Di Linux ada alat yang lebih keren namanya `mtr google.com`. Ini gabungan *ping* dan *traceroute* yang update secara *realtime*. Keren banget, cobain deh!
+
+---
+
+## 3. Cek Identitas Sendiri (IP Config)
+Sebelum nyalahin jaringan luar, cek dulu komputermu sendiri sehat nggak? Dapat IP nggak?
+
+- **Windows:** Buka CMD, ketik `ipconfig` (atau `ipconfig /all` buat detail lengkapnya).
+- **Linux:** Buka terminal, ketik `ip a` atau `ifconfig`.
+- **Fungsi:** Ngecek apakah komputer kita udah dapet Alamat IP dari DHCP atau IP yang kita setting udah benar. Kalau IP-nya awalan `169.254.x.x` (APIPA), itu pertanda komputermu gagal dapet IP dari router!
+
+---
+
+## 4. Cek Buku Telepon (Nslookup / Dig)
+Pernah ngalamin bisa `ping 8.8.8.8` tapi nggak bisa buka `google.com`? Fix, itu penyakitnya ada di sistem DNS! Mari kita interogasi DNS-nya.
+
+- **Cara pakai:** `nslookup google.com` (Bisa Windows/Linux) atau `dig google.com` (Khas Linux).
+- **Fungsi:** Buat nanya ke server, *"Eh, tolong dong terjemahin google.com itu IP-nya berapa sih?"*. Kalau hasilnya error atau alamatnya nggak ketemu, berarti kamu harus benerin settingan IP DNS di komputermu.
+
+---
+
+Dengan modal 4 senjata di atas, kamu udah bisa mendiagnosa 90% masalah jaringan dasar di lab atau di rumah. Jadi kalau lain kali internet ngadat, jangan langsung cabut-pasang kabel colokan ya, jadi dokter dulu!
