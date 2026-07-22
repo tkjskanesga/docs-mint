@@ -1,0 +1,43 @@
+---
+title: Elastic IP (EIP)
+description: 'Memahami alamat IP statis (Elastic IP) untuk instans EC2 Anda.'
+---
+
+Ketika Anda membuat EC2 instance, AWS secara default memberikan alamat IP publik yang bersifat dinamis. Alamat IP publik bawaan ini akan berubah jika Anda melakukan proses *Stop* dan *Start* pada instance. 
+
+**Elastic IP (EIP)** adalah alamat IPv4 publik yang bersifat statis. Dengan mengalokasikan EIP dan mengasosiasikannya (associate) ke server EC2 Anda, alamat IP publik server tersebut tidak akan pernah berubah, sehingga sangat cocok untuk DNS record domain aplikasi web Anda.
+
+## Karakteristik Elastic IP
+
+1. **Fleksibilitas Pemindahan:** Jika instance Anda mengalami kegagalan, Anda dapat memetakan ulang (re-associate) EIP tersebut ke instance pengganti dengan cepat. Pengguna di internet akan tetap mengakses IP yang sama.
+2. **Aturan Biaya (Penagihan):** Untuk mencegah pemborosan alamat IPv4 publik, AWS **mengenakan biaya** untuk setiap EIP yang dialokasikan di akun Anda namun **tidak diasosiasikan** dengan EC2 instance yang sedang berjalan. EIP tidak dikenakan biaya tambahan selama diasosiasikan dengan instance yang sedang berjalan.
+
+## Mengalokasikan dan Mengasosiasikan EIP
+
+<Tabs>
+  <Tab title="AWS Console">
+    1. Pada dashboard Amazon EC2, di panel navigasi kiri di bawah **Network & Security**, pilih **Elastic IPs**.
+    2. Klik tombol **Allocate Elastic IP address**.
+    3. Biarkan pengaturan **Network Border Group** pada opsi default, kemudian klik **Allocate**. Anda kini memiliki alamat IP publik statis yang baru.
+    4. Pilih EIP yang baru saja dialokasikan dari daftar.
+    5. Klik menu **Actions**, dan pilih **Associate Elastic IP address**.
+    6. Pilih **Instance** sebagai *Resource type*.
+    7. Pada dropdown *Instance*, pilih EC2 instance yang sedang berjalan (Running).
+    8. Klik **Associate**.
+  </Tab>
+  <Tab title="AWS CLI">
+    1. Pertama, alokasikan alamat Elastic IP baru:
+       ```bash
+       aws ec2 allocate-address --domain vpc
+       ```
+       *Catatan: Salin `AllocationId` dan `PublicIp` dari output perintah ini.*
+       
+    2. Asosiasikan alamat tersebut ke EC2 instance Anda:
+       ```bash
+       aws ec2 associate-address \
+         --instance-id i-1234567890abcdef0 \
+         --allocation-id eipalloc-0123456789abcdef0
+       ```
+       *(Ganti `--instance-id` dan `--allocation-id` sesuai dengan ID instance dan alokasi Anda)*
+  </Tab>
+</Tabs>

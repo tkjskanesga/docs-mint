@@ -1,0 +1,61 @@
+---
+title: Membuat Bucket S3
+description: 'Panduan langkah demi langkah membuat Amazon S3 bucket dan mengunggah objek.'
+---
+
+Berikut adalah panduan lengkap untuk membuat bucket Amazon S3 dan mulai mengunggah file. S3 Bucket berfungsi sebagai tempat penyimpanan sentral Anda di cloud.
+
+## Langkah-langkah Pembuatan Bucket
+
+<Tabs>
+  <Tab title="AWS Console">
+    1. Buka [AWS Management Console](https://console.aws.amazon.com/) dan masuk menggunakan kredensial Anda.
+    2. Pada kotak pencarian di panel navigasi atas, ketik **S3**, lalu pilih layanan **S3**.
+    3. Di dashboard S3, klik tombol **Create bucket**.
+    4. Pada bagian **General configuration**:
+       - **Bucket name**: Masukkan nama yang unik secara global (contoh: `my-company-assets-2026`). Nama hanya boleh berisi huruf kecil, angka, dan tanda hubung (-).
+       - **AWS Region**: Pilih region geografis terdekat dengan Anda, contoh: **Asia Pacific (Jakarta) ap-southeast-3**.
+    5. Pada bagian **Object Ownership**, rekomendasinya adalah memilih **ACLs disabled (recommended)** untuk memusatkan kontrol akses.
+    6. Pada bagian **Block Public Access settings for this bucket**, pastikan opsi **Block all public access** dicentang demi keamanan data Anda dari akses luar yang tidak sah.
+    7. Untuk bagian **Bucket Versioning** dan **Default encryption**, biarkan pengaturan *default* (versi dinonaktifkan dan enkripsi S3 diaktifkan).
+    8. Gulir ke bawah lalu klik tombol **Create bucket**.
+  </Tab>
+  <Tab title="AWS CLI">
+    Jalankan perintah berikut untuk membuat bucket baru (pastikan mengubah nama bucket sesuai kebutuhan Anda):
+    ```bash
+    aws s3api create-bucket \
+        --bucket my-company-assets-2026 \
+        --region ap-southeast-3 \
+        --create-bucket-configuration LocationConstraint=ap-southeast-3
+    ```
+  </Tab>
+</Tabs>
+
+## Mengunggah File ke Bucket (Upload)
+
+Setelah bucket berhasil dibuat, Anda dapat langsung mengunggah file.
+
+<Tabs>
+  <Tab title="AWS Console">
+    1. Klik nama bucket yang baru saja Anda buat dari daftar di halaman *Buckets*.
+    2. Klik tombol **Upload**.
+    3. Pada panel *Files and folders*, klik **Add files** (untuk file tunggal) atau **Add folder** (untuk direktori).
+    4. Pilih file dari komputer lokal Anda.
+    5. Gulir ke bagian bawah halaman dan klik **Upload**.
+    6. Tunggu hingga bar progres menunjukkan status **Succeeded**, kemudian klik **Close**.
+  </Tab>
+  <Tab title="AWS CLI">
+    Mengunggah file tunggal ke bucket:
+    ```bash
+    aws s3 cp local-file.txt s3://my-company-assets-2026/
+    ```
+    Mengunggah seluruh direktori (secara rekursif):
+    ```bash
+    aws s3 cp ./my-folder s3://my-company-assets-2026/my-folder --recursive
+    ```
+  </Tab>
+</Tabs>
+
+## Konklusi
+
+Anda telah berhasil membuat tempat penyimpanan cloud sendiri di Amazon S3 dan mengunggah file pertama Anda. Proses ini merupakan fondasi awal untuk menyimpan *backup* data, aset aplikasi, atau bahkan mengonfigurasi *hosting web* statis secara aman.

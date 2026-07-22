@@ -1,0 +1,54 @@
+---
+title: Launch Templates
+description: 'Menyimpan konfigurasi pembuatan instance EC2 dengan Launch Templates.'
+---
+
+**Launch Template** adalah sumber daya AWS yang menyimpan seluruh parameter konfigurasi untuk meluncurkan Amazon EC2 instance. Alih-alih mengisi berbagai pengaturan (seperti ID AMI, tipe instance, subnet, security group, dan key pair) setiap kali Anda membuat server baru, Anda dapat mendefinisikannya sekali di dalam Launch Template.
+
+## Fitur Utama Launch Template
+
+1. **Versioning (Manajemen Versi):** Launch Templates mendukung pembuatan versi (versioning). Anda dapat membuat versi baru dari template yang sama untuk memperbarui spesifikasi (misalnya mengubah tipe instance dari `t3.micro` menjadi `t3.small`) dan dengan mudah melakukan *rollback* ke versi sebelumnya.
+2. **Auto Scaling Group (ASG):** Layanan Amazon EC2 Auto Scaling memerlukan Launch Template untuk mengetahui konfigurasi pasti server yang harus dibuat saat melakukan proses *scale-out* (penambahan kapasitas otomatis).
+3. **Standarisasi Deployment:** Mencegah terjadinya *human error* dalam tim, karena seluruh anggota dapat meluncurkan instance baru yang seragam secara konsisten melalui satu *template* yang telah disetujui.
+
+## Membuat Launch Template
+
+<Tabs>
+  <Tab title="AWS Console">
+    1. Buka console Amazon EC2, pada menu sebelah kiri di bawah bagian **Instances**, pilih **Launch Templates**.
+    2. Klik tombol **Create launch template**.
+    3. Masukkan **Launch template name** (contoh: `Web-Server-Template`) dan berikan deskripsi yang sesuai.
+    4. (Opsional) Centang **Auto Scaling guidance** untuk memastikan pengaturan template Anda valid digunakan bersama ASG.
+    5. **Application and OS Images (AMI):** Pilih sistem operasi (misalnya Amazon Linux 2023).
+    6. **Instance type:** Pilih ukuran instance (misalnya `t3.micro`).
+    7. **Key pair (login):** Tentukan key pair yang akan selalu dipasangkan pada instance ini.
+    8. **Network settings:**
+       - Pilih **Virtual private cloud (VPC)**.
+       - Tentukan **Security groups** yang relevan (seperti mengizinkan koneksi HTTP port 80).
+    9. Buka panel **Advanced details**, pada bagian paling bawah, Anda dapat mengisikan **User data** berupa *bash script* untuk menginstal *software* secara otomatis pada saat booting pertama.
+    10. Klik **Create launch template**.
+  </Tab>
+  <Tab title="AWS CLI">
+    Pertama, buat sebuah file konfigurasi JSON bernama `template-config.json` yang berisi definisi parameter peluncuran:
+
+    ```json
+    {
+        "ImageId": "ami-0c55b159cbfafe1f0",
+        "InstanceType": "t3.micro",
+        "KeyName": "admin-key-prod",
+        "SecurityGroupIds": [
+            "sg-0123456789abcdef0"
+        ]
+    }
+    ```
+
+    Kemudian, jalankan perintah `create-launch-template` dengan mereferensikan file JSON tersebut:
+
+    ```bash
+    aws ec2 create-launch-template \
+      --launch-template-name Web-Server-Template \
+      --version-description "Versi Inisial Web Server" \
+      --launch-template-data file://template-config.json
+    ```
+  </Tab>
+</Tabs>

@@ -1,0 +1,77 @@
+---
+title: 'Manajemen Pengguna (User) dan Grup'
+description: 'Cara mengonfigurasi dan mengatur hak akses pengguna serta grup pada Proxmox VE.'
+---
+
+## Pentingnya Manajemen Pengguna
+
+Secara bawaan, Proxmox VE diinstal dengan akun super administrator yaitu `root`. Untuk lingkungan lab atau produksi, sangat tidak disarankan membagikan *password* `root` ke banyak orang. Oleh karena itu, kita perlu membuat akun pengguna (*user*) tambahan dan mengatur hak akses (hak akses/izin) masing-masing menggunakan fitur manajemen pengguna Proxmox.
+
+## Authentication Realms
+
+Proxmox mendukung beberapa metode autentikasi (*Realms*):
+1. **Linux PAM (`pam`)**: Akun pengguna sistem operasi Linux. Pengguna harus dibuat terlebih dahulu di sistem operasi dasar (Debian) menggunakan CLI (seperti perintah `adduser`).
+2. **Proxmox VE authentication server (`pve`)**: Akun pengguna bawaan Proxmox. Semua konfigurasi cukup dilakukan via Web GUI, tanpa perlu membuat akun di OS dasar. Sangat disarankan untuk membuat *user* standar.
+3. **LDAP / Active Directory**: Digunakan untuk mengintegrasikan Proxmox dengan server direktori eksternal.
+
+## Membuat Grup (Group)
+
+Sebelum membuat *user*, praktik terbaiknya adalah membuat **Grup** terlebih dahulu, lalu memberikan hak akses ke grup tersebut.
+
+1. Buka menu **Datacenter** > **Permissions** > **Groups**.
+2. Klik tombol **Create**.
+3. Masukkan nama grup, misalnya `SiswaTKJ` atau `AdminLab`, kemudian tambahkan deskripsi jika perlu.
+4. Klik **Create**.
+
+## Membuat Pengguna (User) Baru
+
+Setelah grup dibuat, saatnya membuat akun pengguna:
+
+1. Masuk ke **Datacenter** > **Permissions** > **Users**.
+2. Klik tombol **Add**.
+3. Isi parameter berikut:
+   - **User name**: Nama *login* (contoh: `buditkj`).
+   - **Realm**: Pilih **Proxmox VE authentication server**.
+   - **Group**: Pilih grup yang sudah kamu buat sebelumnya (misal: `SiswaTKJ`).
+   - **Password / Confirm password**: Masukkan kata sandi untuk pengguna tersebut.
+   - **First / Last Name**: (Opsional) Nama lengkap.
+4. Klik **Add**.
+
+## Mengatur Hak Akses (Permissions)
+
+Sekarang kita perlu mengatur apa saja yang bisa dilakukan oleh *user* atau grup tersebut. Proxmox menggunakan sistem berbasis *Role* (Peran) dan *Path* (Lokasi objek).
+
+Beberapa peran umum:
+- **Administrator**: Hak akses penuh.
+- **PVEVMAdmin**: Hak penuh untuk mengelola VM (membuat, menghapus, mengubah konfigurasi).
+- **PVEVMUser**: Hak terbatas, biasanya hanya bisa menyalakan, mematikan, atau mengakses *console* VM.
+
+Untuk memberikan hak akses ke grup:
+1. Buka **Datacenter** > **Permissions**.
+2. Klik **Add** > **Group Permission**.
+3. Atur parameter berikut:
+   - **Path**: Pilih objek apa yang boleh diakses. 
+     - Jika memilih `/`, grup memiliki akses secara global (seluruh node dan VM).
+     - Jika memilih `/vms/100`, akses hanya untuk VM dengan ID 100.
+   - **Group**: Pilih grup (contoh: `SiswaTKJ`).
+   - **Role**: Pilih peran (contoh: `PVEVMAdmin` atau `PVEVMUser`).
+4. Klik **Add**.
+
+Kini anggota grup tersebut dapat *login* dengan *Realm* **Proxmox VE authentication server** dan akan mendapatkan akses sesuai batas izin yang diberikan.
+
+## Mengubah Profil (Password, Email, dll)
+
+Jika pengguna ingin mengubah profil pribadi seperti kata sandi (password), email, nama depan, atau nama belakang, hal tersebut dapat dilakukan langsung oleh pengguna masing-masing atau oleh administrator.
+
+### Melalui Administrator (root)
+1. Buka menu **Datacenter** > **Permissions** > **Users**.
+2. Pilih nama *user* yang ingin diubah.
+3. Klik tombol **Edit** (untuk mengubah email, nama depan/belakang) atau klik **Password** (untuk mereset kata sandi).
+4. Masukkan data yang baru dan klik **OK**.
+
+### Oleh Pengguna Sendiri
+1. Pengguna *login* menggunakan akunnya ke Web GUI Proxmox.
+2. Di pojok kanan atas, klik pada tulisan **User (contoh: root@pam atau buditkj@pve)**.
+3. Pilih **My Settings** (atau cukup klik tombol panah bawah dan pilih **Password**).
+4. Jika memilih **Password**, masukkan kata sandi lama, lalu masukkan kata sandi baru sebanyak dua kali.
+5. Klik **OK** untuk menyimpan perubahan.

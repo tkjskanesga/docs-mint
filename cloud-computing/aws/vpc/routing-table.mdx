@@ -1,0 +1,53 @@
+---
+title: Route Tables (Tabel Rute)
+description: 'Panduan teknis konfigurasi Route Tables.'
+---
+
+Tabel Rute berisi seperangkat aturan (routes) yang menentukan ke mana arah lalu lintas jaringan dari subnet atau VPC Anda harus dialirkan. Setiap subnet dalam VPC harus berasosiasi secara eksplisit maupun implisit dengan sebuah Route Table untuk mengetahui ke mana paket jaringan harus dikirim.
+
+## Fungsionalitas dan Konsep Utama
+
+- **Main Route Table**: Tabel rute default yang otomatis dibuat bersamaan dengan VPC. Semua subnet yang tidak diasosiasikan secara eksplisit dengan tabel rute lain akan menggunakan Main Route Table.
+- **Custom Route Table**: Tabel rute tambahan yang Anda buat untuk mengontrol perutean secara spesifik (misalnya, membuat Public Subnet dengan rute ke Internet Gateway).
+- **Local Route**: Setiap tabel rute memiliki rute default (`local`) yang memungkinkan semua sumber daya di dalam VPC untuk berkomunikasi satu sama lain. Rute ini tidak dapat dihapus.
+
+## Langkah Konfigurasi
+
+Berikut adalah langkah-langkah untuk membuat dan mengonfigurasi Custom Route Table:
+
+<Tabs>
+  <Tab title="AWS Console">
+    1. Buka konsol Amazon VPC di `https://console.aws.amazon.com/vpc/`.
+    2. Pada panel navigasi, pilih **Route Tables**.
+    3. Klik **Create route table**.
+    4. Isi form:
+       - **Name tag**: Beri nama tabel rute.
+       - **VPC**: Pilih VPC yang bersangkutan.
+    5. Klik **Create route table**.
+    6. Pilih tabel rute yang baru dibuat, lalu pilih tab **Routes** di bawah.
+    7. Klik **Edit routes**, lalu klik **Add route**.
+    8. Tentukan **Destination** (contoh: `0.0.0.0/0` untuk akses internet) dan **Target** (contoh: Internet Gateway). Klik **Save changes**.
+    9. Pilih tab **Subnet associations**, klik **Edit subnet associations**.
+    10. Pilih subnet yang ingin diasosiasikan, lalu klik **Save associations**.
+  </Tab>
+  <Tab title="AWS CLI">
+    1. Buat tabel rute:
+       ```bash
+       aws ec2 create-route-table \
+         --vpc-id vpc-1a2b3c4d
+       ```
+    2. Tambahkan rute (misalnya ke Internet Gateway):
+       ```bash
+       aws ec2 create-route \
+         --route-table-id rtb-12345678 \
+         --destination-cidr-block 0.0.0.0/0 \
+         --gateway-id igw-87654321
+       ```
+    3. Asosiasikan tabel rute dengan subnet:
+       ```bash
+       aws ec2 associate-route-table \
+         --subnet-id subnet-11223344 \
+         --route-table-id rtb-12345678
+       ```
+  </Tab>
+</Tabs>

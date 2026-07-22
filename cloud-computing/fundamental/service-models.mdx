@@ -1,0 +1,41 @@
+---
+title: "Model Layanan Cloud (IaaS, PaaS, SaaS)"
+description: "Mempelajari perbedaan antara IaaS, PaaS, dan SaaS beserta contoh penggunaannya."
+---
+
+Dalam Cloud Computing, layanan umumnya dibagi menjadi tiga kategori besar berdasarkan tingkat pengelolaan (kendali) yang diberikan kepada pengguna. Konsep ini dikenal dengan istilah **Service Models**.
+
+## 1. Infrastructure as a Service (IaaS)
+
+IaaS adalah model layanan yang paling dasar dan memberikan tingkat kendali tertinggi bagi pengguna. Dalam model ini, penyedia cloud menyewakan infrastruktur TI mendasar—seperti server virtual, jaringan, sistem operasi, dan ruang penyimpanan—dengan skema pembayaran sesuai penggunaan (*pay-as-you-go*).
+
+- **Yang Dikelola Penyedia Cloud:** Perangkat keras fisik (server, *storage*, *switch* jaringan), serta fasilitas pusat data (*data center*).
+- **Yang Dikelola Pengguna:** Sistem operasi (OS), aplikasi, data, *runtime*, *middleware*.
+- **Contoh Layanan:** Amazon EC2, Google Compute Engine (GCE), DigitalOcean Droplets.
+- **Kapan Digunakan:** Cocok bagi tim yang butuh kebebasan penuh dalam mengatur server, melakukan kustomisasi instalasi *software*, atau memindahkan arsitektur sistem tradisional ke *cloud*.
+
+## 2. Platform as a Service (PaaS)
+
+PaaS menyediakan lingkungan untuk pengembangan, pengujian, pengiriman, dan pengelolaan aplikasi perangkat lunak tanpa memikirkan kerumitan infrastruktur yang mendasarinya (seperti menyiapkan server fisik atau *patching* sistem operasi).
+
+- **Yang Dikelola Penyedia Cloud:** Perangkat keras fisik, jaringan, sistem operasi, *middleware*, *runtime* (seperti Node.js, PHP, Python).
+- **Yang Dikelola Pengguna:** Kode aplikasi (*source code*) dan data.
+- **Contoh Layanan:** AWS Elastic Beanstalk, Heroku, Google App Engine, Vercel.
+- **Kapan Digunakan:** Sangat cocok untuk pengembang (developer) yang hanya ingin fokus merancang dan menulis kode aplikasi (programming) tanpa harus pusing memikirkan cara instalasi web server (seperti Nginx/Apache) atau urusan pemeliharaan OS.
+
+## 3. Software as a Service (SaaS)
+
+SaaS adalah metode penyampaian aplikasi perangkat lunak melalui internet, sesuai permintaan (biasanya berdasarkan langganan). Pengguna hanya perlu membuka *web browser* atau aplikasi klien untuk langsung menggunakan fiturnya.
+
+- **Yang Dikelola Penyedia Cloud:** Seluruhnya, dari infrastruktur fisik, sistem operasi, hingga aplikasi dan datanya.
+- **Yang Dikelola Pengguna:** Pengguna akhir (User) tidak perlu mengelola apapun, hanya menggunakan aplikasinya.
+- **Contoh Layanan:** Gmail, Google Drive, Microsoft 365, Dropbox, Notion.
+- **Kapan Digunakan:** Digunakan oleh *end-user* atau perusahaan yang butuh solusi instan untuk produktivitas sehari-hari tanpa perlu repot melakukan instalasi dan *maintenance* di perangkat masing-masing.
+
+## Analogi Sederhana (Pizza as a Service)
+
+Untuk membedakannya, bayangkan kamu ingin makan pizza:
+- **On-Premise (Tradisional):** Kamu membuat adonan sendiri, saus sendiri, memanggang di oven sendiri, dan menyajikannya di meja sendiri. (Kamu kelola semuanya).
+- **IaaS:** Kamu membeli adonan dan bahan matang di supermarket, lalu kamu bawa pulang untuk dipanggang menggunakan oven milikmu dan dihidangkan sendiri.
+- **PaaS:** Kamu memesan pizza antar (*delivery*). Pembuat pizza menyiapkan bahan dan memasaknya, tugasmu tinggal menyediakan meja minuman di rumah untuk memakannya.
+- **SaaS:** Kamu datang ke restoran, duduk manis, memesan pizza, makan, lalu pulang. (Restoran mengelola semuanya).

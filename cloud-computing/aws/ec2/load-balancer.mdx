@@ -1,0 +1,76 @@
+---
+title: Elastic Load Balancer (ELB)
+description: 'Mendistribusikan lalu lintas dengan Elastic Load Balancer di AWS.'
+---
+
+**Elastic Load Balancing (ELB)** secara otomatis mendistribusikan lalu lintas aplikasi (traffic) masuk ke beberapa target, seperti instans Amazon EC2, container, dan alamat IP, dalam satu atau beberapa Availability Zone (AZ).
+
+Mengandalkan satu server EC2 tunggal berisiko menyebabkan kondisi *Single Point of Failure*. Apabila jumlah pengguna (traffic) meningkat pesat, server tersebut dapat mengalami kelebihan beban (overload). Load Balancer mengatasi masalah ini dengan membagikan beban *request* pengguna secara merata ke dalam sekelompok server.
+
+## Manfaat Utama ELB
+
+1. **High Availability (Ketersediaan Tinggi):** ELB terus menerus memantau kesehatan (Health Check) dari setiap instance yang terdaftar. Jika sebuah instance terdeteksi mengalami gangguan (*unhealthy*), ELB akan secara otomatis menghentikan pengiriman lalu lintas ke instance tersebut dan mengalihkannya ke instance yang masih sehat.
+2. **Kenyamanan Keamanan (SSL/TLS Offloading):** Anda dapat mengintegrasikan AWS Certificate Manager (ACM) secara langsung ke Load Balancer. ELB akan bertindak sebagai titik terminasi untuk enkripsi HTTPS, membebaskan CPU dari instance backend EC2 agar fokus memproses aplikasi.
+3. **Skalabilitas Penuh:** ELB didesain terintegrasi kuat dengan layanan Auto Scaling Group (ASG), memastikan target routing otomatis diperbarui setiap kali ASG menambah atau mengurangi jumlah instance.
+
+## Jenis-jenis Load Balancer AWS
+
+- **Application Load Balancer (ALB):** Beroperasi di Layer 7 OSI (Aplikasi). Sangat ideal untuk routing HTTP/HTTPS dan arsitektur *microservices*. Mendukung *path-based routing* (mengarahkan ke target group berbeda berdasarkan URL) dan *host-based routing*.
+- **Network Load Balancer (NLB):** Beroperasi di Layer 4 OSI (Transport). Dirancang untuk latensi ultra-rendah dan volume lalu lintas per detik (TCP/UDP) dalam jumlah yang sangat masif (skala jutaan koneksi).
+- **Gateway Load Balancer (GLB):** Memfasilitasi penerapan, skalabilitas, dan pengelolaan perangkat jaringan atau alat virtual pihak ketiga (seperti Next-Gen Firewall).
+
+## Langkah Pembuatan Application Load Balancer
+
+Berikut adalah panduan pembuatan Application Load Balancer (ALB) untuk mendistribusikan lalu lintas HTTP:
+
+<Tabs>
+  <Tab title="AWS Console">
+    1. Buka console EC2, lalu pada menu navigasi sebelah kiri di bawah **Load Balancing**, pilih **Load Balancers**.
+    2. Klik **Create load balancer**.
+    3. Pada kartu **Application Load Balancer**, klik **Create**.
+    4. **Basic configuration:**
+       - Masukkan **Load balancer name** (contoh: `my-web-alb`).
+       - Pilih **Scheme**: `Internet-facing` (agar bisa diakses publik) atau `Internal`.
+       - Pilih **IP address type**: `IPv4`.
+    5. **Network mapping:**
+       - Pilih **VPC** yang menaungi instance EC2 Anda.
+       - Centang setidaknya dua **Availability Zones** untuk memastikan ketersediaan tinggi, lalu pilih subnet publik di masing-masing AZ tersebut.
+    6. **Security groups:** Pilih Security Group yang mengizinkan lalu lintas HTTP (port 80) dan/atau HTTPS (port 443) dari `0.0.0.0/0`.
+    7. **Listeners and routing:**
+       - Pada Listener port 80, klik **Create target group**. Tab baru akan terbuka.
+       - Pada tab baru, pilih tipe target **Instances**, beri nama (misal: `web-tg`), lalu klik **Next**.
+       - Pilih instance EC2 Anda yang sedang menyala, klik **Include as pending below**, dan klik **Create target group**.
+       - Kembali ke tab Load Balancer, refresh dropdown target group, dan pilih `web-tg` yang baru saja Anda buat.
+    8. Klik **Create load balancer**. Load Balancer akan mulai mem-provisioning node distribusinya.
+  </Tab>
+  <Tab title="AWS CLI">
+    Pembuatan ALB melalui CLI memerlukan tiga tahapan komprehensif: membuat load balancer, membuat target group, dan membuat listener.
+
+    1. **Membuat Load Balancer:**
+       ```bash
+       aws elbv2 create-load-balancer \
+         --name my-web-alb \
+         --subnets subnet-12345678 subnet-87654321 \
+         --security-groups sg-01234567 \
+         --scheme internet-facing
+       ```
+
+    2. **Membuat Target Group:**
+       ```bash
+       aws elbv2 create-target-group \
+         --name web-tg \
+         --protocol HTTP \
+         --port 80 \
+         --vpc-id vpc-abcdef12
+       ```
+
+    3. **Membuat Listener untuk menghubungkan ALB dan Target Group:**
+       ```bash
+       aws elbv2 create-listener \
+         --load-balancer-arn arn:aws:elasticloadbalancing:region:account:loadbalancer/app/my-web-alb/1234 \
+         --protocol HTTP \
+         --port 80 \
+         --default-actions Type=forward,TargetGroupArn=arn:aws:elasticloadbalancing:region:account:targetgroup/web-tg/5678
+       ```
+  </Tab>
+</Tabs>

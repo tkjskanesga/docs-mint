@@ -1,0 +1,24 @@
+---
+title: Integrasi API Gateway
+description: 'Menghubungkan AWS Lambda dengan Amazon API Gateway untuk API yang berskala besar.'
+---
+
+Pada materi sebelumnya, Anda sudah belajar menggunakan Lambda Function URL. Namun, untuk sistem skala produksi, URL fungsi seringkali kurang mendukung fitur lanjutan.
+
+**Amazon API Gateway** berperan sebagai gerbang utama yang tangguh untuk layanan API Anda. Layanan ini sepenuhnya terkelola untuk membuat, mempublikasikan, memelihara, dan mengamankan API pada skala apa pun.
+
+## Mengapa menggunakan API Gateway dan Lambda?
+
+- **Routing yang kompleks:** Atur berbagai *endpoint* URL (seperti `GET /users`, `POST /users`) dan arahkan ke fungsi Lambda yang berbeda.
+- **Keamanan lanjutan:** Terapkan pembatasan kecepatan (Rate Limiting) untuk mencegah serangan DDoS, gunakan API Key, dan otorisasi kustom (seperti validasi JWT) melalui Amazon Cognito atau Lambda Authorizer.
+- **Validasi data:** Tolak *request* dengan *payload* (JSON) tidak valid sebelum mencapai Lambda untuk menghemat biaya komputasi.
+- **Caching:** Simpan respons API sehingga permintaan serupa tidak perlu mengeksekusi Lambda berulang kali.
+
+## Cara kerja integrasi
+
+1. **Client** (misal aplikasi React JS atau Mobile App) mengirim permintaan HTTP GET ke *endpoint* API Gateway.
+2. **API Gateway** menerima *request*, mengevaluasi otorisasi, dan membungkus informasi *request* (headers, parameter, body) ke dalam objek JSON (*Event Payload*).
+3. API Gateway mengirim Event tersebut ke **AWS Lambda**.
+4. **Lambda** memproses data sesuai logika bisnis Anda (contoh: mengambil data dari DynamoDB).
+5. Lambda mengembalikan format data (statusCode, body) ke API Gateway.
+6. **API Gateway** mengonversi respons tersebut ke format HTTP standar dan meneruskannya kembali ke **Client**.

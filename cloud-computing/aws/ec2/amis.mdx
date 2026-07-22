@@ -1,0 +1,53 @@
+---
+title: Amazon Machine Image (AMI)
+description: 'Apa itu AMI, fungsinya, dan cara menggunakannya di EC2.'
+---
+
+Setiap kali Anda membuat (*launch*) server EC2 baru, Anda wajib menentukan **Amazon Machine Image (AMI)**. 
+
+## Konsep dasar AMI
+
+AMI adalah cetakan (*template*) dasar (*image*) yang berisi sistem operasi dan perangkat lunak pra-instal. Secara prinsip menyerupai *file* `.iso` pada instalasi sistem operasi, namun AMI dirancang terintegrasi di lingkungan *cloud* AWS.
+
+Setiap AMI membawa informasi berikut:
+1. Spesifikasi Sistem Operasi (misalnya Ubuntu 22.04, Amazon Linux 2023, Windows Server 2022).
+2. Tipe arsitektur CPU (x86, ARM).
+3. Pemetaan blok perangkat (*Block device mapping*) untuk mendefinisikan *volume* penyimpanan utama bagi instans.
+
+### Kategori AMI
+
+- **AWS Quick Start AMIs:** Image yang dikurasi langsung oleh AWS. Aman, stabil, dan optimal untuk penggunaan umum.
+- **AWS Marketplace AMIs:** Image komersial atau pihak ketiga dengan perangkat lunak spesifik. Gunakan AMI ini untuk mempercepat pemasangan (*deployment*), seperti instans yang telah terinstal *WordPress* atau *firewall* jaringan kustom tanpa instalasi manual.
+- **Custom AMIs:** Image yang Anda buat secara mandiri dari instans yang sudah ada. Ini memungkinkan Anda menyimpan kondisi *server* yang telah dikonfigurasi panjang lebar (misalnya Nginx terkonfigurasi, Node.js siap pakai), menjadikannya AMI, dan menggunakannya berulang kali tanpa repot mengatur ulang dari nol.
+
+## Cara membuat Custom AMI
+
+Anda dapat mengonfigurasi pembuatan Custom AMI menggunakan antarmuka konsol maupun CLI AWS.
+
+<Tabs>
+  <Tab title="AWS Console">
+    1. Buka konsol **Amazon EC2**.
+    2. Arahkan ke menu **Instances** dan pilih instans (menyala atau berhenti) yang ingin Anda jadikan cetakan.
+    3. Klik tombol **Actions**, pilih **Image and templates**, lalu tekan **Create image**.
+    4. Isi nama pada kolom *Image name* (misal: `Web-Server-Template-V1`). Tambahkan deskripsi opsional.
+    5. Sesuaikan ukuran *volume* jika diperlukan, lalu klik **Create image**.
+    6. Tunggu proses pembuatan selesai. AMI kustom Anda akan muncul pada menu sidebar kiri di bagian **AMIs**.
+  </Tab>
+  <Tab title="AWS CLI">
+    Jalankan perintah berikut di terminal Anda untuk membuat AMI dari instans yang sudah ada:
+
+    ```bash
+    aws ec2 create-image \
+      --instance-id i-1234567890abcdef0 \
+      --name "Web-Server-Template-V1" \
+      --description "AMI untuk Web Server"
+    ```
+
+    Anda akan menerima `ImageId` sebagai respons. Periksa status pembuatan AMI tersebut dengan:
+
+    ```bash
+    aws ec2 describe-images \
+      --image-ids ami-0abcdef1234567890
+    ```
+  </Tab>
+</Tabs>

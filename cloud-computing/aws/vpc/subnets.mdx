@@ -1,0 +1,45 @@
+---
+title: Subnets (Sub Jaringan)
+description: 'Panduan teknis dan konfigurasi Subnets.'
+---
+
+Subnet adalah rentang alamat IP di dalam VPC (CIDR block) yang dibagi-bagi ke dalam porsi lebih kecil. Setiap subnet harus dipetakan ke dalam satu **Availability Zone (AZ)** spesifik, sehingga memungkinkan Anda membangun arsitektur yang sangat tersedia (High Availability) jika sumber daya didistribusikan melintasi beberapa AZ.
+
+## Tipe-tipe Subnet
+
+- **Public Subnet:** Subnet yang me-routing lalu lintas menuju Internet. Server yang butuh diakses internet (seperti Load Balancer, Web Server) diletakkan di sini. Subnet ini harus memiliki rute ke Internet Gateway.
+- **Private Subnet:** Subnet yang tidak memiliki jalur routing langsung ke Internet. Sumber daya yang tidak boleh diakses dari luar secara langsung (seperti Database RDS, Application Server) wajib diletakkan di sini demi keamanan. Agar resource di subnet ini bisa mengakses internet, digunakan NAT Gateway.
+
+## Langkah Konfigurasi
+
+Berikut adalah langkah-langkah untuk membuat subnet dalam VPC Anda:
+
+<Tabs>
+  <Tab title="AWS Console">
+    1. Buka konsol Amazon VPC di `https://console.aws.amazon.com/vpc/`.
+    2. Pada panel navigasi, pilih **Subnets**.
+    3. Klik tombol **Create subnet**.
+    4. Pilih **VPC ID** dari menu tarik-turun.
+    5. Konfigurasi detail subnet:
+       - **Subnet name**: Masukkan nama untuk subnet.
+       - **Availability Zone**: Pilih AZ tempat subnet akan berada.
+       - **IPv4 CIDR block**: Tentukan blok rentang IP untuk subnet (contoh: `10.0.1.0/24`). Pastikan tidak tumpang tindih dengan subnet lain.
+    6. (Opsional) Klik **Add new subnet** untuk membuat lebih dari satu subnet sekaligus.
+    7. Klik **Create subnet**.
+  </Tab>
+  <Tab title="AWS CLI">
+    1. Buat subnet menggunakan CLI:
+       ```bash
+       aws ec2 create-subnet \
+         --vpc-id vpc-1a2b3c4d \
+         --cidr-block 10.0.1.0/24 \
+         --availability-zone us-east-1a
+       ```
+    2. (Opsional) Aktifkan _auto-assign public IP_ pada subnet (untuk Public Subnet):
+       ```bash
+       aws ec2 modify-subnet-attribute \
+         --subnet-id subnet-11223344 \
+         --map-public-ip-on-launch
+       ```
+  </Tab>
+</Tabs>

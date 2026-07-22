@@ -1,0 +1,24 @@
+---
+title: Apa itu EC2?
+description: 'Pengenalan Amazon Elastic Compute Cloud (EC2), layanan server virtual milik AWS.'
+---
+
+**Amazon EC2 (Elastic Compute Cloud)** adalah layanan pilar di AWS yang setara dengan konsep Virtual Private Server (VPS). EC2 menyediakan komputer virtual, yang dikenal sebagai **Instans (Instances)**, berjalan di dalam pusat data AWS.
+
+## Karakteristik inti EC2
+
+EC2 dirancang untuk fleksibilitas dan kendali penuh atas lingkungan server Anda:
+
+1. **Kebebasan sistem operasi:** Pilih sistem operasi yang sesuai kebutuhan aplikasi Anda, mulai dari berbagai distribusi Linux (Ubuntu, Amazon Linux, Red Hat) hingga Windows Server.
+2. **Fleksibilitas kapasitas komputasi:** Pilih *Instance Types* berdasarkan beban kerja. Anda bisa memulai dari `t3.micro` untuk kebutuhan minimal (1 vCPU, 1 GB RAM) hingga instans masif dengan ratusan GB RAM khusus untuk *Machine Learning* atau pemrosesan *in-memory database*.
+3. **Elastisitas komputasi:** Anda dapat dengan mudah menyesuaikan skala instans secara vertikal (*scale up/down*) untuk mengubah kapasitas *hardware*, atau menyesuaikan skala secara horizontal (*scale out/in*) untuk memperbanyak jumlah instans seiring fluktuasi *traffic*.
+4. **Penagihan Pay-as-you-go:** EC2 menagih pemakaian komputasi (CPU dan memori) Anda dalam hitungan detik (untuk instans tertentu) hanya saat status instans menyala (*running*). Anda tidak dikenakan biaya komputasi saat instans dimatikan (*stopped*).
+
+## Kasus penggunaan umum
+
+Amazon EC2 merupakan tulang punggung bagi arsitektur infrastruktur konvensional. Gunakan EC2 ketika Anda membutuhkan:
+
+- Menjalankan aplikasi web standar (seperti CMS WordPress, aplikasi Laravel, atau Django) yang mengharuskan kontrol *root* atau *administrator* ke sistem operasi.
+- Memproses beban komputasi berat dan berjangka waktu panjang, seperti *rendering* objek 3D atau simulasi data kompleks.
+- Menyediakan wadah (*host*) untuk kontainer Docker, misalnya ketika membangun *cluster* mandiri untuk Amazon ECS atau Kubernetes.
+- Mengkonfigurasi server *database* spesifik secara manual (meskipun Amazon RDS lebih diutamakan untuk kebutuhan *relational database* siap pakai).

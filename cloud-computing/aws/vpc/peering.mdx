@@ -1,0 +1,51 @@
+---
+title: VPC Peering
+description: 'Panduan teknis dan konfigurasi jaringan VPC Peering.'
+---
+
+VPC Peering adalah koneksi jaringan yang menghubungkan dua VPC sehingga Anda dapat merutekan lalu lintas di antara keduanya menggunakan alamat IP privat IPv4 atau IPv6. Instance di salah satu VPC dapat berkomunikasi dengan instance di VPC lainnya seolah-olah mereka berada dalam jaringan yang sama. Anda dapat membuat koneksi VPC Peering antara VPC Anda sendiri, dengan VPC di akun AWS lain, baik dalam satu region maupun antar-region (Inter-Region VPC Peering).
+
+## Fungsionalitas dan Syarat
+
+- **Non-Transitif**: Koneksi VPC Peering bersifat non-transitif. Jika VPC A terhubung dengan VPC B, dan VPC A terhubung dengan VPC C, maka VPC B dan VPC C tidak akan terhubung satu sama lain kecuali Anda membuat koneksi peering secara eksplisit antara VPC B dan VPC C.
+- **CIDR Overlap**: Anda tidak dapat membuat koneksi peering antara dua VPC yang memiliki blok IPv4 atau IPv6 CIDR yang tumpang tindih.
+
+## Langkah Konfigurasi
+
+Berikut adalah langkah-langkah untuk membuat dan mengonfigurasi VPC Peering:
+
+<Tabs>
+  <Tab title="AWS Console">
+    1. Buka konsol Amazon VPC di `https://console.aws.amazon.com/vpc/`.
+    2. Pada panel navigasi, pilih **Peering Connections**.
+    3. Klik tombol **Create Peering Connection**.
+    4. Isi form pembuatan:
+       - Berikan nama pada koneksi di kolom **Name tag**.
+       - Pada **VPC (Requester)**, pilih VPC asal.
+       - Pada **Select another VPC to peer with**, pilih target koneksi (My account atau Another account, beserta Region-nya).
+       - Pada **VPC (Accepter)**, pilih VPC target.
+    5. Klik **Create Peering Connection**.
+    6. Pilih koneksi yang baru dibuat, lalu klik **Actions** dan pilih **Accept Request** (jika berada di akun/region yang sama).
+    7. Perbarui **Route Tables** pada kedua VPC untuk mengizinkan lalu lintas ke CIDR blok masing-masing melalui koneksi Peering.
+  </Tab>
+  <Tab title="AWS CLI">
+    1. Buat request VPC peering:
+       ```bash
+       aws ec2 create-vpc-peering-connection \
+         --vpc-id vpc-1a2b3c4d \
+         --peer-vpc-id vpc-9z8y7x6w
+       ```
+    2. Terima request VPC peering (gunakan ID koneksi yang dihasilkan dari langkah 1):
+       ```bash
+       aws ec2 accept-vpc-peering-connection \
+         --vpc-peering-connection-id pcx-1234567890abcdef0
+       ```
+    3. Tambahkan route ke Route Table (misal, di VPC Requester ke CIDR VPC Accepter):
+       ```bash
+       aws ec2 create-route \
+         --route-table-id rtb-11223344 \
+         --destination-cidr-block 10.0.0.0/16 \
+         --vpc-peering-connection-id pcx-1234567890abcdef0
+       ```
+  </Tab>
+</Tabs>

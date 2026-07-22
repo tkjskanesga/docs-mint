@@ -1,0 +1,27 @@
+---
+title: Apa itu Amazon S3?
+description: 'Pengenalan mengenai layanan penyimpanan objek Amazon S3.'
+---
+
+**Amazon Simple Storage Service (S3)** adalah layanan yang menyediakan penyimpanan objek (*object storage*) melalui antarmuka layanan web yang terukur, aman, dan berkinerja tinggi.
+
+S3 dibangun untuk menyimpan dan mengambil jumlah data berapa pun dari mana saja di internet. Penggunaan S3 mencakup penyimpanan *backup*, arsip data, distribusi aset media, *hosting website* statis, hingga sebagai fondasi *data lake* untuk analitik tingkat lanjut.
+
+## Konsep Dasar S3
+
+Untuk memahami cara kerja S3, Anda perlu mengetahui beberapa komponen intinya:
+
+1. **Buckets:** Wadah logis tingkat teratas untuk menyimpan file di S3. Nama bucket harus unik secara global di seluruh akun AWS dan region.
+2. **Objects:** Entitas dasar yang disimpan di dalam bucket, yang terdiri dari data file itu sendiri dan metadata (informasi tentang file).
+3. **Keys:** Pengidentifikasi unik (nama file beserta *path* logisnya) untuk sebuah object di dalam bucket, contoh: `assets/images/logo.png`.
+4. **Regions:** Lokasi geografis *data center* AWS tempat bucket S3 dibuat. Pemilihan region yang tepat dapat mengoptimalkan latensi, meminimalkan biaya, dan memenuhi regulasi kepatuhan (*compliance*).
+
+## S3 Storage Classes
+
+S3 menawarkan berbagai kelas penyimpanan (*storage classes*) yang dirancang untuk skenario penggunaan (frekuensi akses) yang berbeda guna mengoptimalkan biaya:
+
+1. **S3 Standard:** Cocok untuk data yang sangat sering diakses (*hot data*). Menawarkan tingkat ketersediaan tinggi, latensi sangat rendah, dan redundansi yang solid.
+2. **S3 Standard-IA (Infrequent Access):** Dirancang untuk data yang jarang diakses namun membutuhkan pengambilan dengan sangat cepat saat dibutuhkan. Biaya penyimpanannya lebih murah dibanding Standard, namun ada biaya tambahan untuk setiap pengambilan data.
+3. **S3 One Zone-IA:** Serupa dengan Standard-IA, namun data hanya direplikasi dalam satu Availability Zone (AZ). Ini adalah opsi hemat biaya, dengan kompromi ketersediaan jika terjadi gangguan di AZ tersebut.
+4. **S3 Glacier Flexible Retrieval:** Kelas penyimpanan untuk arsip data jangka panjang. Biaya penyimpanan sangat rendah, namun pengambilan data membutuhkan waktu mulai dari hitungan menit hingga 12 jam.
+5. **S3 Glacier Deep Archive:** Opsi penyimpanan absolut paling murah di AWS, ditujukan untuk data historis (*cold data*) yang diakses satu atau dua kali setahun. Proses pengambilan data dapat memakan waktu hingga 12 jam.

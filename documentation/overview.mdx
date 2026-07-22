@@ -5,8 +5,8 @@ title: "Selamat datang!"
 <img src="/logo/icon-web.png" style={{ width: "100%", maxWidth: "340px" }} />
 
 <p className="text-sm">
-  <Tooltip headline="@ernestoyoofi" tip="Pembuat Icon & Banner pada dokumentasi ini" cta="View Profile" href="https://github.com/ernestoyoofi">
-    Creator Image
+  <Tooltip headline="Creator @ernestoyoofi" tip="Pembuat icon & banner pada dokumentasi ini" cta="Lihat akun" href="https://github.com/ernestoyoofi">
+    Creator Icon
   </Tooltip>
 </p>
 
@@ -41,6 +41,35 @@ Wadah ini dirancang sebagai pusat pembelajaran, berbagi berkas konfigurasi, dan 
 
 ## Kontribusi
 Dokumentasi ini bersifat open-source untuk keluarga besar TKJ Skanesga. Jika Anda ingin menambahkan modul baru atau memperbaiki kesalahan:
-1. Fork repositori ini di GitHub.
-2. Buat branch baru untuk fitur/konten Anda.
-3. Kirim Pull Request (PR) ke repositori utama.
+
+<Steps>
+  <Step title="Fork repositori ini di GitHub dan clone ke lokal.">
+    Fork repositori ini di GitHub dan clone ke lokal.
+
+    ```bash
+    git clone https://github.com/tkjskanesga/docs-mint
+    ```
+  </Step>
+  <Step title="Isi / ganti konten yang ingin kamu kontribusiin.">
+    Isi / ganti konten yang ingin kamu kontribusiin.
+  </Step>
+  <Step title="Buat branch baru untuk fitur/konten Anda.">
+    Buat branch baru untuk fitur/konten Anda.
+
+    ```bash
+    # 1. Buat branch baru
+    git checkout -b feat/<username>/<branch>
+    # 2. Add file
+    git add networking/overview.mdx
+    # or 'git add .' (if edit all file)
+    # 3. Commit pada perubahan
+    git commit -m "feat: Update new content on overview"
+    # 4. Push to your fork
+    git remote add feat-<username> https://github.com/<username>/docs-mint.git
+    git push -u feat-<username> feat/<username>/<branch> 
+    ```
+  </Step>
+  <Step title="Kirim Pull Request (PR) ke repositori utama.">
+    Kirim Pull Request (PR) ke repositori utama.
+  </Step>
+</Steps>

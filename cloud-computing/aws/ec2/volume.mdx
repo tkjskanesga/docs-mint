@@ -1,0 +1,52 @@
+---
+title: EBS Volumes
+description: 'Memahami Elastic Block Store (EBS), layanan penyimpanan hardisk untuk server EC2.'
+---
+
+**Amazon Elastic Block Store (EBS)** adalah layanan *block-level storage* berkinerja tinggi yang dirancang untuk digunakan bersama Amazon EC2. EBS berfungsi layaknya Hard Disk Drive (HDD) atau Solid State Drive (SSD) pada komputer konvensional, namun berada di ekosistem cloud.
+
+## Karakteristik Utama EBS
+
+- **Network-attached (Terpasang melalui jaringan):** Volume EBS tidak tertanam langsung di *motherboard* fisik server EC2. Ia adalah entitas terpisah yang terhubung dengan EC2 melalui jaringan internal AWS dengan latensi sangat rendah.
+- **Durable & Available (Tahan Lama dan Tersedia):** Data pada volume EBS direplikasi secara otomatis di dalam Availability Zone-nya untuk mencegah kehilangan data akibat kegagalan komponen perangkat keras tunggal.
+- **Siklus Hidup Independen:** Volume EBS memiliki siklus hidup yang terpisah dari instance EC2. Anda dapat mematikan (Stop) atau menghapus (Terminate) EC2 sambil tetap mempertahankan Volume EBS. Anda juga bisa melepaskan (*detach*) EBS dari satu server dan memasangnya (*attach*) ke server lain dalam hitungan detik.
+- **Terikat pada Availability Zone (AZ):** Sebuah EBS Volume yang dibuat di satu zona (misal: `ap-southeast-1a`) HANYA bisa dipasangkan pada EC2 di zona yang sama. Untuk memindahkannya ke AZ lain, Anda perlu menggunakan fitur Snapshot.
+
+## Jenis-Jenis Volume EBS
+
+AWS menyediakan berbagai tipe EBS yang dapat disesuaikan dengan kebutuhan performa dan biaya:
+
+1. **General Purpose SSD (gp2, gp3):** Dirancang untuk sebagian besar beban kerja standar, seperti *boot volume*, aplikasi interaktif berlatensi rendah, dan basis data ukuran sedang. Tipe `gp3` sangat disarankan karena biaya lebih rendah dan IOPS serta *throughput* dapat disesuaikan secara independen dari ukuran volume.
+2. **Provisioned IOPS SSD (io1, io2):** SSD ultra-cepat untuk beban kerja kritis dan *database* skala enterprise yang membutuhkan latensi di bawah satu milidetik serta konsistensi IOPS (puluhan ribu transaksi per detik).
+3. **Throughput Optimized HDD (st1):** Hard disk piringan yang berfokus pada *throughput* tinggi dengan harga ekonomis. Ideal untuk Big Data, Data Warehouse, dan log processing.
+4. **Cold HDD (sc1):** Opsi termurah untuk data dalam jumlah besar yang sangat jarang diakses (*cold data*), seperti arsip.
+
+## Manajemen Volume EBS
+
+<Tabs>
+  <Tab title="AWS Console">
+    1. Buka console EC2, pilih **Volumes** pada menu di sebelah kiri.
+    2. Klik **Create volume**.
+    3. Pilih **Volume type** (contoh: General Purpose SSD (`gp3`)).
+    4. Tentukan **Size (GiB)** sesuai kebutuhan.
+    5. Pastikan **Availability Zone** sesuai dengan instance EC2 target Anda.
+    6. Klik **Create volume**.
+    7. Setelah selesai dibuat, pilih volume tersebut, klik **Actions** > **Attach volume**, dan pilih instance tujuan.
+  </Tab>
+  <Tab title="AWS CLI">
+    Membuat volume EBS sebesar 50 GiB tipe gp3:
+    ```bash
+    aws ec2 create-volume \
+        --volume-type gp3 \
+        --size 50 \
+        --availability-zone ap-southeast-3a
+    ```
+    Memasang volume ke instance EC2:
+    ```bash
+    aws ec2 attach-volume \
+        --volume-id vol-1234567890abcdef0 \
+        --instance-id i-1234567890abcdef0 \
+        --device /dev/sdf
+    ```
+  </Tab>
+</Tabs>

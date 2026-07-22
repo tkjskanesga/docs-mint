@@ -1,0 +1,71 @@
+---
+title: Manajemen Objek S3
+description: 'Cara mengelola file (objek) di dalam Amazon S3 untuk keamanan dan efisiensi biaya.'
+---
+
+Setelah menyimpan data di Amazon S3, Anda perlu mengelola objek tersebut secara aktif agar tetap aman, patuh terhadap regulasi, dan hemat biaya secara jangka panjang.
+
+## Fitur Pengelolaan Objek (Object Management)
+
+### 1. Object Versioning (Versi Objek)
+Fitur **Bucket Versioning** memungkinkan S3 untuk menyimpan setiap versi objek saat Anda mengunggah file dengan nama yang sama, bukan menimpanya.
+- **Fungsi:** Melindungi data dari penimpaan (overwrite) atau penghapusan yang tidak disengaja.
+- **Pemulihan:** Anda dapat kembali (*rollback*) ke versi file sebelumnya kapan saja.
+- **Pertimbangan:** S3 menagih biaya penyimpanan untuk setiap versi objek yang ada di dalam bucket. Oleh karena itu, penggabungannya dengan *Lifecycle Policies* sangat direkomendasikan.
+
+### 2. Lifecycle Policies (Kebijakan Siklus Hidup)
+Digunakan untuk mengotomatisasi transisi objek antar kelas penyimpanan (*Storage Class*) atau melakukan penghapusan kedaluwarsa secara otomatis.
+- **Contoh Kasus:** Anda membuat aturan (rule) di mana file yang baru diunggah masuk ke **S3 Standard**. Setelah 30 hari, S3 akan otomatis memindahkan file tersebut ke **S3 Standard-IA** yang lebih murah. Setelah mencapai usia 365 hari, file dipindahkan ke **Glacier Flexible Retrieval** untuk pengarsipan.
+- **Manfaat:** Ini memastikan Anda tidak membayar biaya mahal untuk objek yang jarang diakses.
+
+### 3. S3 Object Lock (Penguncian Objek)
+Fitur *Object Lock* mencegah objek agar tidak dapat dihapus atau diubah dengan menerapkan model WORM (*Write Once, Read Many*).
+- **Mode:** Memiliki dua mode retensi, yaitu *Governance Mode* (bisa dilewati oleh pengguna dengan izin khusus) dan *Compliance Mode* (tidak bisa dihapus oleh siapa pun termasuk pengguna root).
+- **Penggunaan Utama:** Penting untuk memenuhi standar kepatuhan regulasi finansial atau kesehatan, dan untuk melindungi file kritis (*backup*) dari serangan *ransomware*.
+
+### 4. S3 Storage Lens
+Dashboard analitik *built-in* dari AWS untuk visibilitas dan wawasan mendalam mengenai pemakaian S3 di seluruh organisasi Anda.
+- **Fungsi:** Menyediakan metrik tentang penggunaan penyimpanan, distribusi ukuran objek, akses paling tinggi, serta rekomendasi pengoptimalan biaya (*cost optimization*).
+
+## Konfigurasi Lifecycle Rule
+
+<Tabs>
+  <Tab title="AWS Console">
+    1. Buka bucket pilihan Anda di konsol S3.
+    2. Pilih tab **Management**.
+    3. Pada bagian *Lifecycle rules*, klik **Create lifecycle rule**.
+    4. Beri nama *rule* (misal: `ArchiveOldLogs`).
+    5. Tentukan lingkup (terapkan pada prefix tertentu seperti `logs/` atau ke seluruh bucket).
+    6. Centang **Move current versions of objects between storage classes**.
+    7. Pilih transisi, contoh: transisi ke **Standard-IA** setelah 30 hari.
+    8. Klik **Create rule**.
+  </Tab>
+  <Tab title="AWS CLI">
+    Buat file konfigurasi JSON lokal bernama `lifecycle.json`:
+    ```json
+    {
+      "Rules": [
+        {
+          "ID": "ArchiveOldLogs",
+          "Filter": {
+            "Prefix": "logs/"
+          },
+          "Status": "Enabled",
+          "Transitions": [
+            {
+              "Days": 30,
+              "StorageClass": "STANDARD_IA"
+            }
+          ]
+        }
+      ]
+    }
+    ```
+    Lalu terapkan kebijakan tersebut:
+    ```bash
+    aws s3api put-bucket-lifecycle-configuration \
+        --bucket nama-bucket-anda \
+        --lifecycle-configuration file://lifecycle.json
+    ```
+  </Tab>
+</Tabs>

@@ -1,0 +1,81 @@
+---
+title: Hosting Website Statis
+description: 'Cara menggunakan Amazon S3 untuk melakukan hosting website statis (HTML, CSS, JS).'
+---
+
+Amazon S3 menyediakan fitur untuk berfungsi sebagai web server sederhana yang mendistribusikan file statis seperti HTML, CSS, JavaScript, dan gambar. S3 tidak dapat menjalankan bahasa *scripting* *server-side* seperti PHP atau Node.js.
+
+## Persyaratan
+
+Pastikan Anda telah menyiapkan file *source code* website statis Anda (minimal `index.html` dan opsional `error.html`).
+
+## Langkah-langkah Konfigurasi
+
+Berikut adalah panduan untuk mengaktifkan dan mengonfigurasi *Static Website Hosting* di Amazon S3.
+
+<Tabs>
+  <Tab title="AWS Console">
+    1. **Buat S3 Bucket**: Navigasi ke S3, klik **Create bucket**, dan beri nama yang unik.
+    2. **Buka Akses Publik**: Di bagian *Block Public Access settings for this bucket*, hapus centang pada **Block all public access** dan setujui konfirmasi peringatan.
+    3. **Unggah File Website**: Masuk ke bucket yang telah dibuat, klik **Upload**, lalu unggah `index.html` dan seluruh aset statis pendukung (CSS, JS, gambar).
+    4. **Aktifkan Static Website Hosting**:
+       - Buka tab **Properties** di bucket Anda.
+       - Gulir ke paling bawah ke bagian *Static website hosting*, klik **Edit**.
+       - Pilih **Enable**.
+       - Pada *Hosting type*, pilih **Host a static website**.
+       - Pada *Index document*, masukkan `index.html`.
+       - Klik **Save changes**.
+    5. **Berikan Akses Baca Melalui Bucket Policy**:
+       - Pindah ke tab **Permissions**.
+       - Di bagian *Bucket policy*, klik **Edit**.
+       - Masukkan *policy* berikut (pastikan mengganti `NAMA_BUCKET_ANDA`):
+         ```json
+         {
+             "Version": "2012-10-17",
+             "Statement": [
+                 {
+                     "Sid": "PublicReadGetObject",
+                     "Effect": "Allow",
+                     "Principal": "*",
+                     "Action": "s3:GetObject",
+                     "Resource": "arn:aws:s3:::NAMA_BUCKET_ANDA/*"
+                 }
+             ]
+         }
+         ```
+       - Klik **Save changes**.
+  </Tab>
+  <Tab title="AWS CLI">
+    1. **Buat S3 Bucket**:
+       ```bash
+       aws s3api create-bucket --bucket nama-bucket-anda --region us-east-1
+       ```
+    2. **Hapus Blokir Akses Publik**:
+       ```bash
+       aws s3api put-public-access-block --bucket nama-bucket-anda --public-access-block-configuration "BlockPublicAcls=false,IgnorePublicAcls=false,BlockPublicPolicy=false,RestrictPublicBuckets=false"
+       ```
+    3. **Aktifkan Hosting Website Statis**:
+       ```bash
+       aws s3 website s3://nama-bucket-anda/ --index-document index.html
+       ```
+    4. **Terapkan Bucket Policy**:
+       Buat file `policy.json` dan terapkan:
+       ```bash
+       aws s3api put-bucket-policy --bucket nama-bucket-anda --policy file://policy.json
+       ```
+    5. **Unggah File Website**:
+       ```bash
+       aws s3 sync ./website-folder s3://nama-bucket-anda/
+       ```
+  </Tab>
+</Tabs>
+
+## Mengakses Website
+
+Setelah konfigurasi selesai, Anda dapat mengakses website melalui URL *endpoint* S3.
+- Di konsol AWS, buka tab **Properties** dan temukan **Bucket website endpoint** di bagian paling bawah.
+- Format URL umumnya adalah: `http://nama-bucket-anda.s3-website-region.amazonaws.com`.
+
+## Konklusi
+
+Hosting website statis menggunakan S3 adalah solusi yang sangat hemat biaya. Infrastruktur *serverless* S3 secara otomatis menskalakan sumber daya untuk menangani lalu lintas pengguna dalam jumlah besar tanpa memerlukan manajemen *server* tradisional.

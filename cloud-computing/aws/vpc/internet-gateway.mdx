@@ -1,0 +1,54 @@
+---
+title: Internet Gateway (IGW)
+description: 'Mengenal Internet Gateway dalam arsitektur VPC.'
+---
+
+*Internet Gateway* (IGW) adalah komponen terkelola AWS yang diskalakan secara horizontal, berkinerja tinggi, dan *highly available* yang memungkinkan komunikasi jaringan antara instans di dalam VPC Anda dengan internet publik.
+
+Tanpa *Internet Gateway*, VPC Anda sepenuhnya terisolasi dan instans Anda tidak dapat berkomunikasi dengan klien atau layanan eksternal di luar lingkungan AWS.
+
+## Karakteristik Utama
+
+- **Ketersediaan Tinggi (High Availability)**: IGW bersifat redundan; Anda tidak perlu khawatir tentang titik kegagalan tunggal (*single point of failure*).
+- **Tidak Membatasi Bandwidth**: Kinerja jaringan Anda hanya dibatasi oleh batasan *bandwidth* dari instans EC2 yang Anda jalankan, bukan oleh IGW.
+- **Konversi IPv4**: Melakukan translasi alamat jaringan (NAT) secara otomatis pada instans yang memiliki alamat IPv4 publik.
+
+## Cara Kerja Internet Gateway
+
+Agar sebuah instans di dalam VPC memiliki akses publik, langkah-langkah berikut harus terpenuhi:
+
+1. VPC Anda harus memiliki satu *Internet Gateway* yang **dilampirkan (attached)**.
+2. Instans harus diletakkan di **Public Subnet**.
+3. *Route Table* yang terkait dengan subnet tersebut harus memiliki aturan (*route*) yang mengarahkan lalu lintas IPv4 tak dikenal (biasanya direpresentasikan sebagai `0.0.0.0/0`) ke *Internet Gateway* tersebut.
+4. Instans harus memiliki **Alamat IP Publik** (Public IPv4) atau **Elastic IP**.
+
+## Proses Translasi (NAT Logis)
+
+Ketika instans dengan IP publik mengirim lalu lintas ke internet:
+1. Lalu lintas dikirim dari instans menuju IGW.
+2. Secara internal, IGW menerjemahkan IP privat dari instans ke alamat IP publik secara instan.
+3. Saat respons dari internet kembali ke IGW, IGW akan menerjemahkan kembali IP publik ke IP privat untuk dikirimkan kembali ke instans.
+
+## Konfigurasi Internet Gateway
+
+<Tabs>
+  <Tab title="AWS Console">
+    1. Buka layanan **VPC** di AWS Management Console.
+    2. Pada panel navigasi kiri, pilih **Internet gateways**.
+    3. Klik **Create internet gateway**, beri nama pada tag yang disediakan, lalu klik **Create**.
+    4. Setelah berhasil dibuat, klik menu *Actions* dan pilih **Attach to VPC**.
+    5. Pilih VPC tujuan Anda dari *dropdown* dan klik **Attach internet gateway**.
+  </Tab>
+  <Tab title="AWS CLI">
+    1. Membuat Internet Gateway:
+       ```bash
+       aws ec2 create-internet-gateway
+       ```
+    2. Melampirkan IGW ke VPC:
+       ```bash
+       aws ec2 attach-internet-gateway \
+           --internet-gateway-id igw-0123456789abcdef0 \
+           --vpc-id vpc-0123456789abcdef0
+       ```
+  </Tab>
+</Tabs>

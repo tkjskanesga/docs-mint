@@ -1,0 +1,55 @@
+---
+title: Target Groups
+description: 'Mengenal Target Groups dan integrasinya dengan Load Balancer.'
+---
+
+**Target Group** adalah pengelompokan logis dari target-target (biasanya server EC2, alamat IP, atau fungsi Lambda) yang akan menerima *traffic* (lalu lintas jaringan) dari Load Balancer.
+
+Singkatnya, Load Balancer bertindak sebagai titik masuk utama, sedangkan Target Group mendefinisikan rute dan tujuan akhir dari lalu lintas tersebut.
+
+## Cara Kerja Target Group
+
+1. **Pembuatan Target Group:** Anda membuat sebuah Target Group (misal: `TG-WebServer`) dan menentukan protokol serta port (misal: HTTP/80).
+2. **Pendaftaran Target:** Anda mendaftarkan sumber daya, seperti 3 instance EC2 (Server A, Server B, Server C), ke dalam `TG-WebServer`.
+3. **Konfigurasi Routing:** Pada Load Balancer, Anda menambahkan listener rules: "Jika ada *request* mengakses URL root `/`, teruskan ke `TG-WebServer`".
+4. **Distribusi Traffic:** Load Balancer mendistribusikan *traffic* secara merata ke Server A, B, dan C berdasarkan algoritma *routing* yang dipilih.
+
+## Fitur Health Checks (Pengecekan Kesehatan)
+
+Fitur utama Target Group adalah memastikan Load Balancer hanya mengirim lalu lintas ke target yang sehat dan siap melayani pengguna.
+
+- **Mekanisme:** Anda dapat mengonfigurasi Target Group untuk melakukan pemeriksaan berkala (misal: memanggil path `/health` setiap 30 detik).
+- **Status Unhealthy:** Jika sebuah target mengembalikan status error (seperti `500 Internal Server Error`) atau *time-out* selama jumlah ambang batas (threshold) tertentu berturut-turut, statusnya berubah menjadi **Unhealthy**. Load Balancer akan berhenti mengirimkan *traffic* ke target tersebut.
+- **Status Healthy:** Jika target yang sebelumnya gagal mulai memberikan respons yang benar (misal: status `200 OK`) secara berturut-turut, statusnya akan kembali menjadi **Healthy**, dan Load Balancer akan melanjutkan pengiriman *traffic*.
+
+## Konfigurasi Target Group
+
+<Tabs>
+  <Tab title="AWS Console">
+    1. Buka console EC2, arahkan ke menu **Target Groups** di bawah kategori **Load Balancing**.
+    2. Klik **Create target group**.
+    3. Pilih target type, misal **Instances**.
+    4. Masukkan **Target group name** (misal: `TG-WebServer`).
+    5. Tentukan **Protocol** dan **Port** (misal: HTTP pada port 80).
+    6. Pilih **VPC** tempat target Anda berada.
+    7. Konfigurasikan path **Health checks** (misal: `/`).
+    8. Klik **Next**, lalu pilih instance yang ingin didaftarkan, dan klik **Include as pending below**.
+    9. Klik **Create target group**.
+  </Tab>
+  <Tab title="AWS CLI">
+    Membuat target group menggunakan AWS CLI:
+    ```bash
+    aws elbv2 create-target-group \
+        --name TG-WebServer \
+        --protocol HTTP \
+        --port 80 \
+        --vpc-id vpc-1234567890abcdef0
+    ```
+    Mendaftarkan target ke dalam Target Group:
+    ```bash
+    aws elbv2 register-targets \
+        --target-group-arn arn:aws:elasticloadbalancing:region:account:targetgroup/TG-WebServer/12345678 \
+        --targets Id=i-1234567890abcdef0 Id=i-0abcdef1234567890
+    ```
+  </Tab>
+</Tabs>

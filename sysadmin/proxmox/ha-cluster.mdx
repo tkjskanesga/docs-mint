@@ -1,0 +1,58 @@
+---
+title: 'High Availability (HA) & Clustering'
+description: 'Memahami konsep High Availability, cara menggabungkan beberapa node menjadi satu cluster, dan penggunaan HA di Proxmox VE.'
+---
+
+## Apa itu High Availability (HA)?
+
+Dalam dunia infrastruktur server, **High Availability (HA)** atau ketersediaan tinggi adalah konsep di mana sistem didesain sedemikian rupa agar dapat terus beroperasi tanpa henti (atau dengan waktu henti (*downtime*) yang sangat minim) meskipun terjadi kegagalan perangkat keras (hardware failure) pada salah satu server.
+
+Di Proxmox VE, fitur HA memastikan bahwa jika sebuah server (node) mati secara tiba-tiba, Virtual Machine (VM) atau Container (LXC) yang berjalan di dalamnya akan **otomatis di-restart dan dijalankan di server lain** yang masih hidup dalam satu grup (cluster).
+
+Agar HA dapat bekerja secara maksimal, dibutuhkan:
+1. Minimal **3 node (server fisik)** dalam satu cluster (untuk mencapai *quorum*).
+2. Penyimpanan bersama (*Shared Storage*) seperti NFS, iSCSI, Ceph, atau ZFS replication, sehingga semua node memiliki akses ke data VM yang sama.
+
+## Menggabungkan Node (Clustering)
+
+Proxmox VE memudahkan penggabungan 2 node atau lebih ke dalam satu *Cluster* terpusat. Dengan cluster, kamu dapat mengelola semua server dari satu antarmuka (Web GUI).
+
+### Langkah 1: Membuat Cluster di Node Pertama
+Pilih node pertama (yang akan menjadi master/pembuat cluster).
+1. Buka menu **Datacenter** > **Cluster**.
+2. Klik tombol **Create Cluster**.
+3. Masukkan **Cluster Name** (contoh: `SkanesgaCluster`). Perhatian: Nama ini tidak dapat diubah lagi!
+4. Pilih **Cluster Network** (pilih *network interface* yang akan digunakan untuk komunikasi antar node, disarankan menggunakan jaringan lokal/private khusus).
+5. Klik **Create** dan tunggu proses selesai.
+6. Setelah selesai, klik tombol **Join Information** dan salin semua teks sandi (*Join Information*) yang muncul.
+
+### Langkah 2: Menggabungkan Node Kedua (dan seterusnya)
+Buka tab baru dan *login* ke antarmuka Web GUI node kedua. **Pastikan node kedua masih bersih** (belum memiliki VM/LXC).
+1. Buka menu **Datacenter** > **Cluster**.
+2. Klik tombol **Join Cluster**.
+3. *Paste* (tempel) teks sandi yang sudah disalin tadi ke kotak **Information**.
+4. Masukkan **Password** (kata sandi *root* dari node pertama).
+5. Tentukan **Cluster Network** untuk node kedua (pastikan berada di subnet yang sama dengan node pertama).
+6. Klik **Join 'SkanesgaCluster'**.
+7. Tunggu beberapa saat (browser mungkin akan me-*reload* koneksi). Setelah berhasil, node kedua akan muncul di bawah menu *Datacenter* pada semua node!
+
+## Menggunakan Fitur HA
+
+Setelah node tergabung dalam cluster dan memiliki *shared storage*, kamu dapat mulai memproteksi VM dengan fitur HA.
+
+### Membuat HA Group (Opsional)
+HA Group berguna untuk menentukan urutan prioritas node mana yang akan menangani VM jika node utama mati.
+1. Buka **Datacenter** > **HA** > **Groups**.
+2. Klik **Create**.
+3. Masukkan **ID** (contoh: `GrupUtama`).
+4. Pilih node mana saja yang tergabung dan beri angka **Priority** (semakin tinggi, semakin diutamakan). Klik **OK**.
+
+### Menambahkan VM ke dalam HA
+1. Buka **Datacenter** > **HA**.
+2. Di bagian **Resources**, klik **Add**.
+3. Pilih **VM** yang ingin diproteksi.
+4. Pada kolom **Max. Restart** dan **Max. Relocate**, biarkan bawaan (biasanya 1).
+5. Pada kolom **Group**, pilih grup yang dibuat tadi (atau kosongkan agar Proxmox memilih node yang bebas secara otomatis).
+6. Klik **Add**.
+
+Kini VM tersebut telah terproteksi! Kamu bisa mengujinya dengan mencabut kabel power salah satu node; dalam beberapa menit, VM tersebut akan otomatis *booting* di node lain.

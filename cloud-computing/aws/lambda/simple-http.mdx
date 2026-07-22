@@ -1,0 +1,103 @@
+---
+title: Simple HTTP API dengan Lambda
+description: 'Cara membuat API backend HTTP sederhana menggunakan fungsi Lambda.'
+---
+
+Salah satu kasus penggunaan paling populer untuk AWS Lambda adalah sebagai *backend* aplikasi, merespons permintaan HTTP dari pengguna.
+
+Untuk mengekspos fungsi Lambda melalui URL, Anda dapat menggunakan Amazon API Gateway atau fitur Lambda Function URLs. Panduan ini menggunakan Lambda Function URLs karena lebih praktis untuk API sederhana.
+
+## Langkah konfigurasi
+
+### 1. Buat fungsi Lambda
+
+<Tabs>
+  <Tab title="AWS Console">
+    1. Buka layanan **Lambda** di AWS Management Console.
+    2. Klik **Create function**.
+    3. Pilih opsi **Author from scratch**.
+    4. Masukkan nama fungsi, misalnya `helloWorldAPI`.
+    5. Pilih *Runtime* **Node.js 20.x**.
+    6. Klik **Create function**.
+  </Tab>
+  <Tab title="AWS CLI">
+    Jalankan perintah berikut di terminal Anda untuk membuat fungsi Lambda. Pastikan Anda sudah menyiapkan IAM Role.
+
+    ```bash
+    aws lambda create-function \
+      --function-name helloWorldAPI \
+      --runtime nodejs20.x \
+      --role arn:aws:iam::123456789012:role/lambda-ex \
+      --handler index.handler \
+      --zip-file fileb://function.zip
+    ```
+  </Tab>
+</Tabs>
+
+### 2. Tulis kode fungsi
+
+Ganti kode bawaan dengan *source code* berikut untuk menangani parameter query HTTP.
+
+```javascript
+export const handler = async (event) => {
+    // Ambil parameter query 'name', atau gunakan 'Stranger' secara bawaan
+    const name = event.queryStringParameters?.name || 'Stranger';
+    
+    // Kembalikan respons dalam format objek JSON HTTP standar
+    const response = {
+        statusCode: 200,
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify(`Hello, ${name}! Welcome to my Serverless API!`),
+    };
+    return response;
+};
+```
+
+Jika Anda menggunakan AWS Console, klik **Deploy** untuk menyimpan perubahan.
+
+### 3. Aktifkan Function URL
+
+<Tabs>
+  <Tab title="AWS Console">
+    1. Pada halaman detail fungsi, pilih tab **Configuration**.
+    2. Pilih menu **Function URL** di sidebar kiri.
+    3. Klik **Create function URL**.
+    4. Atur *Auth type* menjadi **NONE** agar API dapat diakses publik.
+    5. Klik **Save**. Anda akan menerima URL khusus.
+  </Tab>
+  <Tab title="AWS CLI">
+    Jalankan perintah berikut untuk menambahkan konfigurasi URL pada fungsi Anda:
+
+    ```bash
+    aws lambda create-function-url-config \
+      --function-name helloWorldAPI \
+      --auth-type NONE
+    ```
+
+    Kemudian berikan izin akses publik:
+
+    ```bash
+    aws lambda add-permission \
+      --function-name helloWorldAPI \
+      --action lambda:InvokeFunctionUrl \
+      --principal "*" \
+      --statement-id FunctionURLAllowPublicAccess \
+      --function-url-auth-type NONE
+    ```
+  </Tab>
+</Tabs>
+
+### 4. Uji coba API
+
+Buka URL yang Anda dapatkan di browser. Tampilan akan menunjukkan pesan `Hello, Stranger! Welcome to my Serverless API!`. 
+
+Coba tambahkan parameter pada URL:
+`https://<id>.lambda-url.<region>.on.aws/?name=Budi`
+
+Layar akan menampilkan `Hello, Budi! Welcome to my Serverless API!`.
+
+## Konklusi
+
+Anda berhasil membangun backend API tanpa menyalakan server secara fisik. Metode ini mempermudah pengembangan *microservices* dan menghemat biaya pengelolaan infrastruktur.

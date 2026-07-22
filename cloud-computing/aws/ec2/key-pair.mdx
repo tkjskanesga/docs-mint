@@ -1,0 +1,50 @@
+---
+title: Key Pairs (Kunci Akses)
+description: 'Cara kerja sistem otentikasi SSH Key Pair di AWS EC2.'
+---
+
+Amazon EC2 menggunakan kriptografi kunci publik (Public Key Cryptography) untuk mengenkripsi dan mendekripsi informasi kredensial login (SSH untuk Linux, atau RDP untuk Windows). Secara default, otentikasi berbasis password dinonaktifkan pada AMI standar AWS demi alasan keamanan.
+
+Sebuah **Key Pair** terdiri dari dua bagian:
+1. **Public Key (Kunci Publik):** Disimpan oleh AWS di dalam instance EC2 (pada file `~/.ssh/authorized_keys`).
+2. **Private Key (Kunci Privat):** Disimpan secara lokal oleh pengguna (umumnya dalam format `.pem` atau `.ppk`).
+
+Ketika Anda melakukan inisiasi koneksi SSH, server akan mencocokkan Private Key yang dikirimkan oleh klien dengan Public Key yang terdaftar di server.
+
+### Keamanan Private Key
+- **File `.pem` bersifat sangat rahasia.** Kepemilikan file ini memberikan kontrol administratif penuh (akses root/sudo) ke server Anda.
+- AWS hanya memberikan kesempatan mengunduh file Private Key **satu kali** saat proses pembuatan. Jika file ini hilang, Anda tidak dapat mengunduhnya kembali dan mungkin kehilangan akses ke instance tersebut jika tidak ada metode otentikasi alternatif.
+
+## Membuat Key Pair Baru
+
+Anda dapat membuat key pair pada saat peluncuran (launch) instance, atau membuatnya secara terpisah sebelum meluncurkan instance.
+
+<Tabs>
+  <Tab title="AWS Console">
+    1. Pada dashboard Amazon EC2, di panel navigasi kiri di bawah **Network & Security**, klik **Key Pairs**.
+    2. Klik tombol **Create key pair** di pojok kanan atas.
+    3. Pada kolom **Name**, masukkan nama deskriptif (contoh: `admin-key-prod`).
+    4. Pilih **Key pair type**. Umumnya, `RSA` adalah pilihan paling kompatibel.
+    5. Pilih **Private key file format**:
+       - **.pem**: Untuk digunakan dengan OpenSSH (MacOS, Linux, dan Windows 10/11 PowerShell).
+       - **.ppk**: Untuk digunakan dengan klien PuTTY di sistem operasi Windows versi lama.
+    6. Klik **Create key pair**. Browser akan secara otomatis mengunduh file private key ke komputer Anda.
+  </Tab>
+  <Tab title="AWS CLI">
+    Anda dapat membuat key pair dan menyimpan output material kunci privat secara langsung ke sebuah file menggunakan perintah `create-key-pair`.
+
+    ```bash
+    aws ec2 create-key-pair \
+      --key-name admin-key-prod \
+      --key-type rsa \
+      --key-format pem \
+      --query "KeyMaterial" \
+      --output text > admin-key-prod.pem
+    ```
+
+    *Penting (Khusus Linux/Mac):* Setelah file `.pem` terbuat, pastikan Anda mengubah hak akses file agar tidak dapat dibaca oleh user lain untuk mencegah error *Permission denied (publickey)*:
+    ```bash
+    chmod 400 admin-key-prod.pem
+    ```
+  </Tab>
+</Tabs>

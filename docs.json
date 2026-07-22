@@ -19,7 +19,7 @@
     "links": [
       {
         "type": "button",
-        "label": "Pengenalan Sekolah",
+        "label": "Pengenalan sekolah",
         "href": "https://tkjskanesga.github.io/pengenalan-sekolah"
       },
       {
@@ -30,7 +30,7 @@
     ],
     "primary": {
       "type": "button",
-      "label": "Profile TKJ",
+      "label": "Profil TKJ",
       "href": "https://tkjskanesga.github.io"
     }
   },
@@ -187,9 +187,76 @@
             ]
           },
           {
-            "group": "AWS",
+            "group": "Fundamental",
             "pages": [
-              "cloud-computing/aws/overview"
+              "cloud-computing/fundamental/overview",
+              "cloud-computing/fundamental/service-models"
+            ]
+          },
+          {
+            "group": "AWS",
+            "icon": "aws",
+            "pages": [
+              "cloud-computing/aws/overview",
+              "cloud-computing/aws/free-tier",
+              "cloud-computing/aws/academy",
+              {
+                "group": "IAM",
+                "icon": "user",
+                "pages": [
+                  "cloud-computing/aws/iam/what-is-iam",
+                  "cloud-computing/aws/iam/users-roles-permissions",
+                  "cloud-computing/aws/iam/aws-cli"
+                ]
+              },
+              {
+                "group": "EC2",
+                "icon": "microchip",
+                "pages": [
+                  "cloud-computing/aws/ec2/what-is-ec2",
+                  "cloud-computing/aws/ec2/create-ec2",
+                  "cloud-computing/aws/ec2/amis",
+                  "cloud-computing/aws/ec2/volume",
+                  "cloud-computing/aws/ec2/snapshot",
+                  "cloud-computing/aws/ec2/key-pair",
+                  "cloud-computing/aws/ec2/elastic-ip",
+                  "cloud-computing/aws/ec2/load-balancer",
+                  "cloud-computing/aws/ec2/target-group",
+                  "cloud-computing/aws/ec2/launch-template"
+                ]
+              },
+              {
+                "group": "VPC",
+                "icon": "network-wired",
+                "pages": [
+                  "cloud-computing/aws/vpc/what-is-vpc",
+                  "cloud-computing/aws/vpc/subnets",
+                  "cloud-computing/aws/vpc/internet-gateway",
+                  "cloud-computing/aws/vpc/routing-table",
+                  "cloud-computing/aws/vpc/peering",
+                  "cloud-computing/aws/vpc/privatelink"
+                ]
+              },
+              {
+                "group": "S3",
+                "icon": "bucket",
+                "pages": [
+                  "cloud-computing/aws/s3/what-is-s3",
+                  "cloud-computing/aws/s3/create-s3",
+                  "cloud-computing/aws/s3/static-website",
+                  "cloud-computing/aws/s3/cloudfront",
+                  "cloud-computing/aws/s3/manage"
+                ]
+              },
+              {
+                "group": "Lambda",
+                "icon": "lambda",
+                "pages": [
+                  "cloud-computing/aws/lambda/what-is-lambda",
+                  "cloud-computing/aws/lambda/simple-http",
+                  "cloud-computing/aws/lambda/api-gateway"
+                ]
+              }
             ]
           }
         ]
@@ -205,12 +272,28 @@
           },
           {
             "group": "Proxmox VE",
+            "icon": "server",
             "pages": [
               "sysadmin/proxmox/overview",
+              "sysadmin/proxmox/installation",
+              "sysadmin/proxmox/user-management",
+              "sysadmin/proxmox/network-configuration",
+              "sysadmin/proxmox/ha-cluster",
               "sysadmin/proxmox/virtual-machine",
               "sysadmin/proxmox/vm-advanced",
               "sysadmin/proxmox/lxc",
               "sysadmin/proxmox/lxc-config"
+            ]
+          },
+          {
+            "group": "Docker",
+            "icon": "whale",
+            "pages": [
+              "sysadmin/docker/overview",
+              "sysadmin/docker/installation",
+              "sysadmin/docker/fundamentals",
+              "sysadmin/docker/advanced",
+              "sysadmin/docker/swarm"
             ]
           }
         ]

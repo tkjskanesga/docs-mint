@@ -1,0 +1,56 @@
+---
+title: "Mengakses AWS Academy"
+description: "Panduan untuk masuk ke AWS Management Console menggunakan akun AWS Academy melalui platform Canvas."
+---
+
+Bagi institusi atau sekolah yang terdaftar dalam program edukasi AWS, siswa akan diberikan akses ke **AWS Academy**. Akses ini sangat menguntungkan karena kamu tidak perlu memasukkan kartu kredit untuk latihan dan akan mendapatkan batasan kredit saldo (budget) khusus secara gratis.
+
+Platform utama yang digunakan untuk mengelola kelas dan laboratorium (lab) AWS Academy adalah **Canvas**.
+
+## Masuk ke Portal Canvas
+
+Ada dua cara untuk masuk ke portal AWS Academy Canvas, tergantung bagaimana instruktur mengatur kelasmu:
+
+- **Tipe 1 (Menggunakan Email):** Buka email undangan dari instruktur/guru, lalu klik tautan di dalamnya untuk bergabung ke kelas dan atur kata sandimu.
+- **Tipe 2 (Menggunakan Username Langsung):** Instruktur mungkin sudah mendaftarkanmu sebelumnya dan memberikan detail *username* beserta kata sandi (*password*). Kamu bisa langsung menuju portal *login* pada [Canvas (https://awsacademy.instructure.com/login/canvas)](https://awsacademy.instructure.com/login/canvas) yang diberikan oleh instruktur dan masuk menggunakan data tersebut.
+
+Setelah berhasil masuk, pilih mata kuliah atau *Course* yang sedang kamu ikuti di bagian **Dashboard**.
+
+## Mengakses Lingkungan Lab
+
+Di dalam kelas, carilah modul yang memberikan akses praktikum AWS.
+1. Pada menu sebelah kiri, klik **Modules**.
+2. Cari modul pembelajaran yang dikhususkan untuk praktikum, biasanya bernama **"Learner Lab"** atau sesi lab tertentu.
+3. Klik pada modul tersebut. Halaman baru akan terbuka dan menampilkan antarmuka *lab environment* yang dikelola oleh platform pihak ketiga (Vocareum).
+
+## Pengenalan Tombol Lab
+
+Di dalam antarmuka lab ini, terdapat beberapa tombol kontrol di bagian atas yang sangat penting untuk dipahami:
+
+- **Start Lab:** Tombol untuk menyalakan lingkungan *cloud* sementara milikmu. Ketika ditekan, server AWS akan menyiapkan sesi, dan batas waktu mundur (*timer*) akan mulai berjalan.
+- **End Lab (Stop):** Tombol untuk mengakhiri sesi. Selalu pastikan untuk menekan tombol ini jika kamu sudah selesai praktikum agar saldo (*budget*) lab kamu tidak terus terkuras.
+- **AWS Details:** Berisi informasi kredensial rahasia sementara seperti *Access Key ID*, *Secret Access Key*, dan *AWS Session Token*. Kredensial ini digunakan jika kamu ingin terhubung melalui AWS CLI di terminal.
+- **Readme:** Membuka panduan instruksi atau modul praktikum dari instruktur mengenai apa yang harus dikerjakan pada lab tersebut.
+- **Reset:** Mengembalikan seluruh kondisi akun AWS kamu ke keadaan kosong sejak awal (seperti di-format). **Perhatian:** Seluruh konfigurasi atau mesin (EC2, S3, dll) yang kamu buat akan hilang permanen. Hanya gunakan jika disuruh oleh instruktur.
+
+## Masuk ke AWS Console
+
+Lalu, bagaimana cara membuka *dashboard* (Console) AWS itu sendiri?
+
+Perhatikan tulisan atau titik indikator bertuliskan **AWS** di halaman lab. Warna indikator ini menunjukkan status layananmu:
+
+- 🔴 **Merah:** Menandakan lab sedang dalam keadaan mati. Kamu belum menekan tombol "Start", sehingga konsol belum bisa diakses.
+- 🟡 **Kuning:** Menandakan lab sedang dalam proses persiapan (*provisioning*). Harap bersabar menunggu beberapa saat.
+- 🟢 **Hijau:** Lab sudah aktif! **Klik tombol bertuliskan AWS berwarna hijau tersebut**.
+
+Setelah diklik, kamu akan otomatis diarahkan ke *tab* baru dan langsung masuk ke halaman utama **AWS Management Console** tanpa perlu memasukkan kata sandi lagi. Kamu bisa langsung mempraktikkan materi di dalamnya!
+
+## Kredit dan Batas Waktu Pengerjaan
+
+Setiap akun lab di Vocareum biasanya diberikan kredit (saldo) sekitar **$50 USD**. Kredit ini akan terpotong secara otomatis selama sesi lab berjalan berdasarkan layanan AWS yang kamu gunakan (misalnya menjalankan EC2 Instance, menyimpan data di S3, dsb).
+
+Beberapa hal penting yang perlu diperhatikan:
+- **Durasi per sesi:** Setiap kali kamu menekan **Start Lab**, waktu pengerjaan dibatasi sekitar **4 hingga 7 jam** (tergantung pengaturan instruktur). Setelah batas waktu habis, sesi akan otomatis dihentikan.
+- **Kredit tidak bisa di-reset:** Jika kredit $50 habis, kamu tidak akan bisa menjalankan lab lagi. Oleh karena itu, **gunakan kredit sebaik dan sehemat mungkin**.
+- **Selalu tekan End Lab:** Jangan biarkan lab berjalan jika kamu sudah selesai atau sedang istirahat. Meskipun kamu tidak melakukan apa-apa, beberapa layanan (seperti EC2 yang masih menyala) tetap memakan kredit.
+- **Matikan resource yang tidak dipakai:** Sebelum mengakhiri sesi, biasakan untuk men-*terminate* atau men-*stop* EC2 Instance dan menghapus resource lain yang sudah tidak diperlukan agar tidak menggerus saldo di sesi berikutnya.

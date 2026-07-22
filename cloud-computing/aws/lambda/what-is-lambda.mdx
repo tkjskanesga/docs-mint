@@ -1,0 +1,27 @@
+---
+title: Apa itu AWS Lambda?
+description: 'Pengenalan komputasi tanpa server (Serverless) dengan AWS Lambda.'
+---
+
+AWS Lambda memperkenalkan konsep **Serverless Computing** (Komputasi Tanpa Server). Berbeda dengan EC2 di mana Anda harus mengelola *virtual server*, Lambda memungkinkan Anda fokus pada kode tanpa memikirkan infrastruktur di belakangnya.
+
+## Konsep Serverless dan Lambda
+
+"Tanpa server" bukan berarti ketiadaan fisik server, melainkan pengalihan tanggung jawab pengelolaan dari Anda ke AWS. Anda mengunggah kode, dan AWS menyediakan, mengonfigurasi, serta merawat infrastruktur komputasi untuk menjalankannya.
+
+AWS Lambda mengeksekusi kode Anda sebagai respons terhadap sebuah kejadian (*event-driven*) dan otomatis mengatur kapasitas komputasinya.
+
+### Fitur utama
+
+- **Bebas manajemen server:** Anda cukup mengunggah kode yang ditulis dalam berbagai *runtime* yang didukung (seperti Node.js, Python, Java, Go).
+- **Pembayaran Pay-as-You-Go presisi:** Anda hanya membayar waktu komputasi yang dihabiskan untuk menjalankan kode, terhitung dalam hitungan milidetik. Tagihan adalah $0 saat fungsi tidak dieksekusi.
+- **Skalabilitas otomatis:** Lambda secara otomatis dan instan menggandakan instans eksekusi untuk menangani lonjakan permintaan.
+- **Integrasi ekosistem AWS:** Fungsi Lambda mudah dipicu (*trigger*) oleh berbagai layanan, seperti unggahan objek di S3, modifikasi data di DynamoDB, atau panggilan API melalui API Gateway.
+
+## Penggunaan optimal Lambda
+
+Lambda ideal untuk operasi komputasi *stateless* dan bereksekusi singkat (batas maksimal eksekusi adalah 15 menit). Beberapa kasus penggunaan yang cocok:
+
+- Mengotomatisasi modifikasi ukuran gambar (image resizing) segera setelah diunggah ke Amazon S3.
+- Menjalankan rutinitas pengiriman notifikasi email.
+- Mengelola *backend* tanpa server untuk aplikasi Web maupun Mobile.

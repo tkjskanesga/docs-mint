@@ -1,14 +1,25 @@
 ---
 title: "AWS Overview"
-description: "Pengenalan Amazon Web Services (AWS)"
+description: "Pengenalan Amazon Web Services (AWS) dan layanan intinya."
 ---
 
-## Apa itu Amazon Web Services (AWS)?
-**Amazon Web Services (AWS)** adalah platform komputasi awan yang paling komprehensif dan banyak diadopsi di dunia, menawarkan lebih dari 200 layanan unggulan dari pusat data secara global.
+**Amazon Web Services (AWS)** adalah platform komputasi awan yang paling komprehensif dan banyak diadopsi di dunia. AWS menawarkan lebih dari 200 layanan unggulan yang didistribusikan dari pusat data secara global, memungkinkan skalabilitas, keamanan, dan keandalan tingkat enterprise.
 
-Di kategori ini, kita akan mempelajari layanan-layanan dasar AWS yang sering digunakan di industri:
-* **Amazon EC2 (Elastic Compute Cloud):** Layanan server virtual (VPS) di cloud.
-* **Amazon S3 (Simple Storage Service):** Penyimpanan objek yang aman, tahan lama, dan berskala besar.
-* **Amazon RDS (Relational Database Service):** Layanan database relasional terkelola untuk MySQL, PostgreSQL, dll.
-* **AWS IAM (Identity and Access Management):** Pengaturan hak akses pengguna dan resource AWS secara aman.
-* **Amazon VPC (Virtual Private Cloud):** Jaringan virtual terisolasi untuk meletakkan resource AWS Anda.
+## Layanan Dasar AWS
+
+Berikut adalah layanan-layanan dasar AWS yang menjadi fondasi utama arsitektur cloud modern:
+
+1. **Amazon EC2 (Elastic Compute Cloud):**
+   Layanan komputasi elastis yang menyediakan kapasitas server virtual (instances) yang dapat diubah ukurannya. EC2 memungkinkan Anda melakukan *provisioning* server dalam hitungan menit, mengonfigurasi keamanan, dan mengelola penyimpanan.
+
+2. **Amazon S3 (Simple Storage Service):**
+   Layanan penyimpanan objek berkinerja tinggi dengan tingkat ketahanan data (durability) 99.999999999% (11 9s). S3 dirancang untuk menyimpan dan mengambil data dalam jumlah berapapun dari mana saja.
+
+3. **Amazon RDS (Relational Database Service):**
+   Layanan database relasional terkelola penuh yang mempermudah pengaturan, pengoperasian, dan penskalaan database di cloud. Mendukung mesin seperti MySQL, PostgreSQL, MariaDB, Oracle, dan SQL Server.
+
+4. **AWS IAM (Identity and Access Management):**
+   Layanan kontrol akses terpusat yang memungkinkan administrator mengelola izin akses secara aman (autentikasi dan otorisasi) ke sumber daya AWS menggunakan kebijakan berbasis JSON.
+
+5. **Amazon VPC (Virtual Private Cloud):**
+   Layanan jaringan yang memungkinkan penyediaan bagian yang terisolasi secara logis dari cloud AWS. Pengguna dapat meluncurkan sumber daya AWS di jaringan virtual yang didefinisikan sendiri, lengkap dengan kontrol atas *IP address range*, pembuatan *subnet*, serta konfigurasi *route tables* dan *network gateways*.

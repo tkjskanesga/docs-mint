@@ -1,0 +1,55 @@
+---
+title: Komponen-komponen VPC
+description: 'Mengenal elemen-elemen di dalam arsitektur VPC (Subnets, Route Tables, Internet Gateway, NAT Gateway).'
+---
+
+Amazon VPC dibangun di atas beberapa komponen fundamental. Mengonfigurasi setiap elemen secara tepat adalah kunci untuk membangun arsitektur jaringan yang aman dan *scalable*.
+
+## 1. Subnets
+Subnet adalah segmen atau porsi yang lebih kecil dari rentang IP (CIDR block) VPC Anda. Setiap subnet diletakkan di dalam satu **Availability Zone (AZ)** spesifik.
+
+- **Public Subnet**: Memiliki rute akses langsung menuju internet. Digunakan untuk menempatkan sumber daya yang harus dapat dijangkau dari luar, seperti *Web Server* atau *Application Load Balancer*.
+- **Private Subnet**: Terisolasi dari akses masuk internet langsung. Sumber daya krusial dan sensitif seperti *Database Relasional (RDS)* atau peladen aplikasi internal harus ditempatkan di sini.
+
+## 2. Route Tables
+*Route Table* (Tabel Rute) menyimpan sekumpulan aturan (*routes*) yang memandu arah aliran lalu lintas jaringan dari *subnet* atau VPC Anda.
+- Setiap *subnet* harus berasosiasi dengan sebuah *Route Table*.
+- *Route* mengarahkan *traffic* tujuan ke target tertentu, misalnya ke *Internet Gateway* atau koneksi VPN.
+
+## 3. Internet Gateway (IGW)
+*Internet Gateway* (IGW) memfasilitasi komunikasi dua arah antara VPC Anda dengan internet.
+- Untuk membuat sebuah *subnet* menjadi publik, *Route Table* milik *subnet* tersebut harus memiliki rute ke `0.0.0.0/0` yang menunjuk ke *Internet Gateway*.
+- Tanpa IGW, VPC Anda akan berstatus tertutup dari konektivitas internet *inbound* maupun *outbound*.
+
+## 4. NAT Gateway
+Komponen di *Private Subnet* (seperti server *backend* atau *database*) tidak dapat menerima permintaan langsung dari internet, tetapi terkadang mereka membutuhkan akses ke luar (misalnya untuk mengunduh *patch* atau pembaruan keamanan).
+
+**NAT (Network Address Translation) Gateway** memungkinkan sumber daya di *Private Subnet* untuk menginisiasi koneksi *outbound* ke internet, sekaligus memblokir koneksi *inbound* yang datang dari luar.
+
+## 5. Komponen Keamanan (Security Groups & NACL)
+VPC mengimplementasikan dua lapisan perlindungan utama untuk mengontrol *traffic*:
+
+- **Security Group (SG)**: Bertindak sebagai dinding api (*firewall*) tingkat instans (*Instance level*).
+  - Bersifat *Stateful* (respons atas permintaan *inbound* yang diizinkan akan otomatis diizinkan keluar).
+  - Anda menentukan spesifikasi *port* (misal: buka *port* 443 untuk lalu lintas HTTPS).
+- **Network ACL (NACL)**: Berfungsi sebagai *firewall* sekunder di batas terluar *subnet* (*Subnet level*).
+  - Bersifat *Stateless* (lalu lintas *inbound* dan *outbound* dievaluasi secara terpisah dan harus diizinkan secara eksplisit).
+
+## Manajemen Komponen VPC
+
+<Tabs>
+  <Tab title="AWS Console">
+    Anda dapat membuat dan mengatur masing-masing komponen ini di navigasi panel layanan VPC di bawah kategori **Virtual private cloud** (seperti Subnets, Route Tables, Internet Gateways).
+  </Tab>
+  <Tab title="AWS CLI">
+    Contoh pembuatan Subnet Publik:
+    ```bash
+    aws ec2 create-subnet --vpc-id vpc-0abc123 --cidr-block 10.0.1.0/24
+    ```
+    Contoh pembuatan *Internet Gateway* dan pelekatan ke VPC:
+    ```bash
+    aws ec2 create-internet-gateway
+    aws ec2 attach-internet-gateway --vpc-id vpc-0abc123 --internet-gateway-id igw-0xyz123
+    ```
+  </Tab>
+</Tabs>

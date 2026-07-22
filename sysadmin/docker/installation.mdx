@@ -1,0 +1,59 @@
+---
+title: "Instalasi Docker"
+description: "Cara menginstal Docker di berbagai sistem operasi: Linux, macOS, dan Windows."
+---
+
+## Instalasi di Linux (Ubuntu/Debian)
+
+Menginstal Docker di sistem operasi berbasis Linux sangatlah mudah, karena ini adalah habitat aslinya.
+
+### Langkah Konfigurasi
+1. Perbarui *repository* sistem:
+   ```bash
+   sudo apt-get update
+   ```
+2. Instal pustaka prasyarat:
+   ```bash
+   sudo apt-get install ca-certificates curl gnupg
+   ```
+3. Tambahkan kunci GPG resmi Docker:
+   ```bash
+   sudo install -m 0755 -d /etc/apt/keyrings
+   curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /etc/apt/keyrings/docker.gpg
+   sudo chmod a+r /etc/apt/keyrings/docker.gpg
+   ```
+4. Tambahkan *repository* Docker ke *source list*:
+   ```bash
+   echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/ubuntu $(. /etc/os-release && echo "$VERSION_CODENAME") stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
+   ```
+5. Perbarui lagi dan instal Docker Engine:
+   ```bash
+   sudo apt-get update
+   sudo apt-get install docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
+   ```
+
+## Instalasi di Windows (WSL 2 / Docker Desktop)
+
+Untuk Windows, cara termudah dan paling optimal adalah menggunakan **Docker Desktop** yang terintegrasi dengan Windows Subsystem for Linux (WSL 2).
+
+### Langkah Konfigurasi
+1. Pastikan fitur WSL 2 sudah aktif. Buka PowerShell sebagai Administrator dan jalankan:
+   ```powershell
+   wsl --install
+   ```
+2. Unduh **Docker Desktop untuk Windows** melalui situs resminya: [docker.com/products/docker-desktop](https://www.docker.com/products/docker-desktop).
+3. Jalankan file *installer* (`Docker Desktop Installer.exe`).
+4. Saat instalasi, pastikan opsi **"Use WSL 2 instead of Hyper-V"** tercentang.
+5. Selesaikan instalasi dan *restart* PC jika diminta.
+6. Buka aplikasi Docker Desktop. Buka terminal (CMD/PowerShell) dan jalankan `docker --version` untuk verifikasi.
+
+## Instalasi di macOS
+
+Sama seperti Windows, instalasi di macOS menggunakan aplikasi Docker Desktop.
+
+### Langkah Konfigurasi
+1. Unduh **Docker Desktop untuk Mac** dari situs resminya. Pilih versi cip yang sesuai (Intel atau Apple Silicon/M1/M2).
+2. Buka file `.dmg` yang telah diunduh.
+3. Seret (drag) ikon Docker ke dalam folder **Applications**.
+4. Buka aplikasi Docker dari Launchpad dan setujui permintaan akses *privileged* (masukkan kata sandi Mac kamu).
+5. Docker akan berjalan di *menu bar* atas. Buka terminal dan ketik `docker --version` untuk verifikasi.

@@ -1,0 +1,57 @@
+---
+title: 'Instalasi Proxmox VE'
+description: 'Panduan langkah demi langkah melakukan instalasi Proxmox Virtual Environment pada server fisik.'
+---
+
+## Persiapan Instalasi
+
+Sebelum memulai instalasi Proxmox VE, pastikan kamu telah menyiapkan beberapa hal berikut:
+- **Perangkat Keras (Hardware)**: Server atau PC dengan CPU yang mendukung virtualisasi (Intel VT-x atau AMD-V), minimal RAM 4GB (direkomendasikan 8GB+), dan kapasitas penyimpanan yang cukup.
+- **File ISO Proxmox**: Unduh versi terbaru dari [situs resmi Proxmox](https://www.proxmox.com/en/downloads).
+- **USB Bootable**: Gunakan aplikasi seperti Rufus atau BalenaEtcher untuk membuat USB *bootable* menggunakan file ISO yang sudah diunduh.
+
+## Langkah-langkah Instalasi
+
+<Tip>
+   Kamu bisa lihat video dari "Dea Afrizal" pada video bawah ini untuk detailnya
+</Tip>
+
+<iframe
+  className="w-full aspect-video rounded-xl"
+  src="https://www.youtube.com/embed/wMSxYOZMl0U?start=116"
+  title="YouTube video player"
+  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+  allowFullScreen
+></iframe>
+
+
+Proses instalasi Proxmox VE mirip dengan menginstal distribusi Linux pada umumnya. Berikut adalah langkah-langkah detailnya:
+
+1. **Boot dari USB**: Masukkan USB *bootable* ke server, nyalakan, dan atur BIOS/UEFI agar *booting* pertama kali dari USB tersebut.
+2. **Menu Awal**: Saat muncul menu *boot* Proxmox, pilih **Install Proxmox VE** dan tekan Enter.
+3. **EULA**: Baca dan setujui *End User License Agreement* dengan mengklik tombol **I agree**.
+4. **Target Disk**: Pilih *hardisk* atau SSD tempat Proxmox akan diinstal. Secara bawaan, Proxmox akan menggunakan format **ext4**. Jika butuh konfigurasi *software RAID* atau ZFS, klik tombol **Options**.
+5. **Lokasi dan Zona Waktu**: Atur negara (Country), zona waktu (Time zone), dan *layout keyboard*. Biasanya, jika terhubung ke internet, ini akan otomatis terisi.
+6. **Password dan Email**: 
+   - Masukkan *password* untuk pengguna `root`. Pastikan kamu mengingatnya karena ini adalah *password* administrator utama!
+   - Masukkan alamat email yang valid untuk notifikasi sistem.
+7. **Konfigurasi Jaringan**:
+   - **Management Interface**: Pilih kartu jaringan yang akan digunakan untuk mengelola server.
+   - **Hostname (FQDN)**: Masukkan nama *host* (contoh: `pve.skanesgalab.local`).
+   - **IP Address**: Masukkan alamat IP statis untuk server Proxmox kamu.
+   - **Gateway dan DNS**: Masukkan IP Gateway dari *router* dan DNS server (contoh: `8.8.8.8`).
+8. **Summary**: Tinjau kembali semua konfigurasi. Jika sudah benar, klik **Install**.
+9. **Reboot**: Tunggu proses instalasi selesai. Setelah selesai, server akan otomatis *reboot*. (Jangan lupa cabut USB *bootable*-nya).
+
+## Mengakses Antarmuka Web (Web GUI)
+
+Setelah server menyala kembali, ia akan menampilkan alamat akses di layar terminal (misalnya: `https://192.168.1.10:8006`).
+
+1. Buka *browser* di komputer klien yang terhubung dalam satu jaringan.
+2. Ketikkan alamat IP yang muncul beserta port `8006`, contoh: `https://192.168.1.10:8006`.
+3. Jika muncul peringatan keamanan (SSL Certificate), abaikan saja dengan memilih **Advanced > Proceed to...** karena ini adalah sertifikat *self-signed*.
+4. Pada halaman *login*, masukkan:
+   - **Username**: `root`
+   - **Password**: (sesuai yang kamu buat saat instalasi)
+   - **Realm**: `Linux PAM standard authentication`
+5. Klik **Login**, dan selamat! Kamu sudah berhasil masuk ke *dashboard* utama Proxmox VE.

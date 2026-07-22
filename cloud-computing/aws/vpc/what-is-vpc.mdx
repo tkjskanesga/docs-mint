@@ -1,0 +1,47 @@
+---
+title: Apa itu VPC?
+description: 'Pengenalan jaringan Amazon Virtual Private Cloud (VPC).'
+---
+
+Amazon Virtual Private Cloud (VPC) memungkinkan Anda meluncurkan sumber daya AWS ke dalam jaringan virtual terisolasi yang Anda definisikan sendiri. Jaringan ini terisolasi secara logis dari penyewa (tenant) AWS lainnya, memberikan Anda kontrol penuh atas lingkungan *cloud* Anda.
+
+Secara konseptual, VPC adalah "pusat data (*data center*) virtual" Anda di dalam infrastruktur AWS.
+
+## Mengapa Menggunakan VPC?
+
+Tanpa VPC, layanan komputasi seperti instans EC2 akan langsung terekspos ke internet publik, yang menimbulkan risiko keamanan signifikan. Dengan VPC, Anda memiliki fleksibilitas untuk mendesain arsitektur jaringan yang aman dan disesuaikan dengan kebutuhan aplikasi:
+
+- **Pemilihan Blok IP (*CIDR Block*)**: Menentukan rentang alamat IPv4 dan IPv6 untuk keseluruhan VPC.
+- **Segmentasi Jaringan (Subnet)**: Memisahkan sumber daya ke dalam subnet publik (dapat diakses internet) dan subnet privat (terisolasi dari internet).
+- **Manajemen Lalu Lintas (*Route Tables* & *Gateways*)**: Mengarahkan aliran data di dalam VPC dan ke dunia luar.
+- **Keamanan Berjenjang**: Menerapkan *Security Groups* dan *Network ACLs* (NACL) untuk mengatur siapa dan apa yang diizinkan masuk atau keluar dari sumber daya Anda.
+
+## Jenis-Jenis VPC
+
+### 1. Default VPC
+Saat Anda membuat akun AWS, sebuah **Default VPC** secara otomatis disediakan di setiap *AWS Region*. 
+- Dioptimalkan agar pengguna dapat langsung meluncurkan EC2 tanpa melakukan konfigurasi jaringan yang rumit.
+- Semua *subnet* di dalam Default VPC bersifat publik (otomatis memiliki akses internet).
+
+### 2. Custom VPC
+Di tingkat *enterprise* dan *production*, Insinyur Cloud biasanya merancang **Custom VPC** dari nol.
+- Memungkinkan desain topologi jaringan kustom.
+- Praktik standar melibatkan pembuatan subnet privat untuk komponen *backend* seperti basis data (*Database*), memastikan mereka tidak dapat diakses secara langsung dari internet.
+
+## Cara Mengelola VPC
+
+<Tabs>
+  <Tab title="AWS Console">
+    1. Buka layanan **VPC** di konsol AWS.
+    2. Klik **Create VPC** (Anda dapat menggunakan mode *VPC and more* untuk membuat arsitektur VPC lengkap berserta subnet dan tabel rute secara visual).
+    3. Tentukan rentang *IPv4 CIDR block*.
+    4. Konfigurasikan subnet dan *route table* sesuai kebutuhan.
+  </Tab>
+  <Tab title="AWS CLI">
+    Membuat VPC dasar menggunakan perintah CLI:
+    ```bash
+    aws ec2 create-vpc --cidr-block 10.0.0.0/16
+    ```
+    Perintah ini akan mengembalikan ID VPC yang dapat Anda gunakan untuk membuat subnet dan mengonfigurasi properti jaringan lainnya.
+  </Tab>
+</Tabs>

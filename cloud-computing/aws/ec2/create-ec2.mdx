@@ -1,0 +1,70 @@
+---
+title: Membuat EC2 Instance
+description: 'Panduan cara meluncurkan (launch) server virtual EC2 pertama Anda.'
+---
+
+Amazon Elastic Compute Cloud (Amazon EC2) menyediakan kapasitas komputasi yang dapat diskalakan di cloud. Menggunakan Amazon EC2 menghilangkan kebutuhan untuk berinvestasi pada perangkat keras.
+
+## Langkah-langkah Launch Instance
+
+<Tabs>
+  <Tab title="AWS Console">
+    1. Buka console AWS dan navigasikan ke layanan **EC2**.
+    2. Pada menu sebelah kiri, pilih **Instances**, kemudian klik tombol **Launch instances**.
+    3. **Name and tags:** Masukkan nama untuk instance Anda (contoh: `Web-Server-Pertama`).
+    4. **Application and OS Images (Amazon Machine Image - AMI):** Pilih sistem operasi yang diinginkan. Sangat disarankan untuk memilih **Amazon Linux 2023** atau **Ubuntu 22.04 LTS** yang memiliki label *Free tier eligible*.
+    5. **Instance type:** Pilih **t2.micro** atau **t3.micro** untuk memastikan Anda tetap berada dalam batas Free Tier.
+    6. **Key pair (login):** 
+       - Pilih key pair yang sudah ada, atau klik **Create new key pair**.
+       - Jika membuat baru, beri nama (contoh: `KunciRahasia`), pilih format `.pem`, dan klik **Create key pair**. Simpan file ini dengan aman.
+    7. **Network settings:**
+       - Pastikan VPC dan Subnet default terpilih.
+       - Centang **Auto-assign public IP**.
+       - Di bagian Firewall (security groups), pilih **Create security group**. Centang **Allow SSH traffic from Anywhere** dan **Allow HTTP traffic from the internet**.
+    8. **Configure storage:** Biarkan default (umumnya 8 GB gp2/gp3) atau sesuaikan dengan kebutuhan (Free Tier mengizinkan hingga 30 GB EBS).
+    9. Di panel sebelah kanan pada bagian Summary, tinjau kembali konfigurasi Anda, dan klik **Launch instance**.
+  </Tab>
+  <Tab title="AWS CLI">
+    Untuk membuat EC2 instance menggunakan AWS CLI, jalankan perintah `run-instances`:
+
+    ```bash
+    aws ec2 run-instances \
+      --image-id ami-0c55b159cbfafe1f0 \
+      --count 1 \
+      --instance-type t2.micro \
+      --key-name KunciRahasia \
+      --security-group-ids sg-903004f8 \
+      --subnet-id subnet-6e7f829e
+    ```
+
+    *Catatan: Pastikan Anda mengganti nilai `--image-id`, `--key-name`, `--security-group-ids`, dan `--subnet-id` dengan nilai yang sesuai di environment AWS Anda.*
+  </Tab>
+</Tabs>
+
+## Mengakses Instance
+
+Setelah instance berstatus **Running**, Anda dapat mengaksesnya.
+
+<Tabs>
+  <Tab title="EC2 Instance Connect">
+    1. Pilih instance yang ingin diakses dari daftar Instances.
+    2. Klik tombol **Connect** di bagian atas.
+    3. Pilih tab **EC2 Instance Connect** dan klik **Connect**. Jendela terminal browser akan terbuka langsung menuju server Anda.
+  </Tab>
+  <Tab title="SSH Client">
+    1. Buka terminal atau Command Prompt.
+    2. Ubah hak akses file `.pem` Anda agar tidak bersifat publik (khusus Linux/Mac):
+       ```bash
+       chmod 400 KunciRahasia.pem
+       ```
+    3. Gunakan perintah SSH untuk terhubung:
+       ```bash
+       ssh -i "KunciRahasia.pem" ec2-user@<Public-IPv4-address>
+       ```
+       *(Ganti `ec2-user` dengan `ubuntu` jika menggunakan AMI Ubuntu)*
+  </Tab>
+</Tabs>
+
+## Konklusi
+
+Selamat! Anda baru saja menghidupkan sebuah server virtual di pusat data AWS. Anda kini dapat menginstal web server, database, dan menjalankan aplikasi Anda di cloud.

@@ -1,0 +1,86 @@
+---
+title: "Users, Roles, dan Permissions"
+description: "Arsitektur pengelolaan akses IAM: Memahami entitas Users, Roles, dan mekanisme penerapan Permissions (Kebijakan)."
+---
+
+Komponen inti AWS Identity and Access Management (IAM) terdiri dari **Users**, **Roles**, dan **Permissions (Policies)**. Meskipun ketiganya berperan dalam memberikan otorisasi, masing-masing dirancang untuk *use case* spesifik dan arsitektur keamanan yang berbeda.
+
+## IAM Users dan Groups
+
+**IAM User** adalah identitas persisten di AWS yang merepresentasikan entitas spesifik—baik individu manusia (seperti administrator atau *developer*) maupun layanan/aplikasi eksternal (seperti server *on-premise*) yang membutuhkan interaksi konstan dengan AWS.
+
+- **Kredensial Jangka Panjang:** IAM Users menggunakan kata sandi (*Password*) untuk akses konsol UI, dan pasangan *Access Key/Secret Key* untuk akses terprogram (API/CLI). Kredensial ini bersifat statis hingga diputar (dirotasi) secara manual.
+- **IAM Groups:** Praktik terbaik keamanan mendikte bahwa Anda tidak boleh mengaitkan *policy* langsung ke satu User. Alih-alih, kelompokkan User ke dalam **IAM Groups** berdasarkan fungsi pekerjaan (misal: `DatabaseAdmins`, `FrontendDevs`) dan terapkan *policy* pada grup tersebut.
+
+## IAM Roles
+
+**IAM Role** adalah mekanisme identitas sementara yang mengizinkan *entitas yang dipercaya* untuk "memerankan" (*assume*) hak akses tertentu. 
+
+- **Kredensial Dinamis Sementara (STS):** Tidak seperti IAM User, Role sama sekali tidak memiliki kredensial permanen. AWS Security Token Service (STS) memberikan token kredensial sementara kepada entitas yang memerankan Role.
+- **Skenario Penggunaan Utama:**
+  1. **Layanan AWS (Service Role):** Memberikan izin kepada instans Amazon EC2 atau AWS Lambda untuk mengakses layanan lain (seperti menulis data ke S3) tanpa perlu menyimpan *Access Key* secara *hard-coded*.
+  2. **Akses Lintas Akun (Cross-Account):** Mendelegasikan akses antara dua akun AWS yang berbeda.
+  3. **Federasi Identitas:** Memberikan akses ke pengguna yang diautentikasi secara eksternal (misal melalui Active Directory lokal, Google Workspace, atau penyedia SAML 2.0).
+
+<Tabs>
+  <Tab title="CLI: Membuat IAM User">
+    Membuat pengguna baru dan melampirkan kebijakan (policy) menggunakan AWS CLI:
+
+    ```bash
+    # 1. Membuat IAM User
+    aws iam create-user --user-name AliceDev
+
+    # 2. Melampirkan kebijakan (misal: S3 Read Only)
+    aws iam attach-user-policy \
+        --user-name AliceDev \
+        --policy-arn arn:aws:iam::aws:policy/AmazonS3ReadOnlyAccess
+    ```
+  </Tab>
+  <Tab title="CLI: Membuat IAM Role">
+    Membuat role untuk layanan EC2 dan melampirkan kebijakan menggunakan AWS CLI:
+
+    ```bash
+    # 1. Membuat Role dengan Trust Policy (mengizinkan EC2 memerankan Role)
+    aws iam create-role \
+        --role-name EC2S3AccessRole \
+        --assume-role-policy-document file://ec2-trust-policy.json
+
+    # 2. Melampirkan kebijakan operasional (misal: S3 Read Only)
+    aws iam attach-role-policy \
+        --role-name EC2S3AccessRole \
+        --policy-arn arn:aws:iam::aws:policy/AmazonS3ReadOnlyAccess
+    ```
+  </Tab>
+</Tabs>
+
+## IAM Policies (Permissions)
+
+**IAM Policy** adalah dokumen berbasis JSON yang berfungsi sebagai aturan yang mendefinisikan izin (permissions) eksplisit. Kebijakan akan dievaluasi oleh *policy evaluation logic* setiap kali identitas memanggil AWS API.
+
+Setiap pernyataan (*Statement*) dalam kebijakan JSON IAM terdiri dari elemen-elemen berikut:
+
+1. **Effect:** Menentukan apakah kebijakan ini menyetujui (`Allow`) atau menolak (`Deny`) akses. Evaluasi IAM secara *default* akan menolak (*Deny*) akses (kecuali eksplisit `Allow`). Otorisasi eksplisit `Deny` akan mengesampingkan otorisasi `Allow` manapun.
+2. **Action:** Menentukan daftar operasi API spesifik layanan yang sedang diatur (misal: `s3:GetObject`, `ec2:StartInstances`). Karakter *wildcard* (`*`) dapat digunakan.
+3. **Resource:** Mendefinisikan target spesifik sumber daya (Amazon Resource Name/ARN) yang terpengaruh oleh *Action* (misal: `arn:aws:s3:::my-bucket/*`).
+
+**Contoh Dokumen JSON Policy:**
+
+```json
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Sid": "AllowS3ReadAccess",
+      "Effect": "Allow",
+      "Action": [
+        "s3:GetObject",
+        "s3:ListBucket"
+      ],
+      "Resource": [
+        "arn:aws:s3:::production-data-bucket",
+        "arn:aws:s3:::production-data-bucket/*"
+      ]
+    }
+  ]
+}
+```

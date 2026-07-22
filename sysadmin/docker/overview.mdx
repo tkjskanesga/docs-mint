@@ -1,0 +1,27 @@
+---
+title: "Pengenalan Docker"
+description: "Apa itu Docker, perbedaannya dengan Virtual Machine, dan studi kasus penggunaannya."
+---
+
+## Apa itu Docker?
+
+Docker adalah platform perangkat lunak sumber terbuka (open-source) yang memungkinkan kamu untuk mengembangkan, mengirimkan, dan menjalankan aplikasi di dalam sebuah wadah (container) yang terisolasi. Container membungkus kode aplikasi beserta semua dependensinya (seperti library, sistem operasi dasar, dan konfigurasi) sehingga aplikasi dapat berjalan dengan konsisten di lingkungan mana pun.
+
+## Docker vs Virtual Machine (VM)
+
+Walaupun fungsinya terkesan mirip, arsitektur Docker dan VM sangatlah berbeda:
+
+1. **Virtual Machine (VM):** Membutuhkan Hypervisor (seperti Proxmox, VMware) untuk mengalokasikan perangkat keras fisik menjadi virtual. Setiap VM menjalankan Sistem Operasinya (Guest OS) sendiri secara penuh. Bebannya berat dan butuh waktu lama untuk *booting*.
+2. **Docker (Container):** Berjalan langsung di atas Sistem Operasi (Host OS) dan menggunakan arsitektur *container engine*. Container berbagi kernel OS yang sama dengan Host, sehingga jauh lebih ringan, hemat sumber daya, dan bisa hidup dalam hitungan detik.
+
+## Studi Kasus: Mengapa Membutuhkan Docker?
+
+Pernahkah kamu membuat aplikasi yang berjalan lancar di komputermu, tapi tiba-tiba error saat di-*copy* ke komputer teman atau di-*deploy* ke server produksi? Fenomena ini sering disebut *“It works on my machine” syndrome*.
+
+Hal ini biasanya terjadi karena:
+- Perbedaan versi sistem operasi.
+- Perbedaan versi pustaka (*library*) atau *runtime* (misal: Node.js v14 vs v18).
+- Konfigurasi variabel lingkungan (*environment*) yang tidak konsisten.
+
+**Solusi dengan Docker:**
+Dengan Docker, kamu memasukkan aplikasi beserta versi Node.js yang tepat dan semua *library*-nya ke dalam satu wujud bernama **Image**. Ketika Image ini dijalankan di server atau PC mana pun yang memiliki Docker, hasilnya dijamin 100% sama persis tanpa perlu konfigurasi OS manual lagi.

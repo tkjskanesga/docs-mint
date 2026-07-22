@@ -1,0 +1,58 @@
+---
+title: "Operasi Lanjutan Docker"
+description: "Mempelajari perintah tingkat lanjut: build, push, pull, dan inspect."
+---
+
+Setelah memahami dasar-dasar Container, tahap selanjutnya adalah membuat Image kustom sendiri dan mengetahui cara membagikannya.
+
+## Membangun Image Sendiri (Build)
+
+Kamu dapat membuat Docker Image dari kodemu sendiri dengan menggunakan sebuah file bernama `Dockerfile`. File ini berisi instruksi langkah demi langkah untuk merakit aplikasi.
+
+### Langkah Konfigurasi
+1. Buat file bernama `Dockerfile` (tanpa ekstensi) di folder aplikasimu:
+   ```dockerfile
+   FROM node:18-alpine
+   WORKDIR /app
+   COPY . .
+   RUN npm install
+   CMD ["npm", "start"]
+   ```
+2. Jalankan perintah `build` di terminal pada folder tersebut:
+   ```bash
+   docker build -t namakamu/aplikasiku:v1 .
+   ```
+   *Parameter `-t` digunakan untuk memberi nama (tag) pada Image.*
+
+## Mengambil dan Mengunggah Image (Pull & Push)
+
+Docker Hub adalah wadah utama untuk menyimpan Image (mirip GitHub untuk repositori kode).
+
+### Docker Pull
+Digunakan untuk mengunduh Image dari *registry* tanpa langsung menjalankannya.
+```bash
+docker pull ubuntu:22.04
+```
+
+### Docker Push
+Digunakan untuk mengunggah Image buatanmu ke Docker Hub agar bisa dipakai oleh orang lain atau digunakan di server produksi.
+1. Pastikan kamu sudah masuk (login):
+   ```bash
+   docker login
+   ```
+2. Unggah Image:
+   ```bash
+   docker push namakamu/aplikasiku:v1
+   ```
+
+## Menginspeksi Objek (Inspect)
+
+Jika kamu perlu mengetahui detail terdalam dari sebuah Container, Image, Volume, atau Network (seperti melihat IP Address lokal dari sebuah Container), gunakan perintah `inspect`.
+
+```bash
+docker inspect <container_id_atau_nama>
+```
+Perintah ini akan mengeluarkan data yang sangat panjang dalam format JSON. Jika kamu hanya ingin mencari IP Address, kamu bisa menggunakan teknik penyaringan (*filtering*):
+```bash
+docker inspect -f '{{range.NetworkSettings.Networks}}{{.IPAddress}}{{end}}' <container_id>
+```

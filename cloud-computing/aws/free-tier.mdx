@@ -1,0 +1,39 @@
+---
+title: "Membuat Akun AWS Free Tier"
+description: "Panduan lengkap pembuatan akun AWS Free Tier untuk eksplorasi dan pengembangan awal."
+---
+
+AWS Free Tier memberikan akses gratis ke berbagai layanan AWS dalam batas penggunaan tertentu selama 12 bulan pertama, serta akses layanan *Always Free*. Skema ini ideal untuk *prototyping* dan pembelajaran.
+
+## Persyaratan Awal
+
+Sebelum memulai proses registrasi, pastikan Anda telah menyiapkan:
+1. Alamat email aktif dan valid.
+2. Nomor telepon yang dapat menerima panggilan telepon atau pesan SMS untuk verifikasi identitas.
+3. Kartu kredit atau debit (Visa/Mastercard) berlogo jaringan internasional. AWS akan melakukan penahanan dana sementara (otorisasi senilai $1 USD) untuk memvalidasi kartu; dana ini tidak ditagihkan secara permanen.
+
+## Langkah-langkah Registrasi Akun
+
+Ikuti langkah-langkah berikut untuk mengonfigurasi akun AWS baru Anda:
+
+1. **Akses Portal Pendaftaran:** Buka tautan resmi [AWS Free Tier](https://aws.amazon.com/free/) dan klik tombol **Create a Free Account** di sudut kanan atas.
+2. **Kredensial Login:** Masukkan alamat email Anda, dan tentukan nama akun AWS (Account Name). Klik **Verify email address**.
+3. **Verifikasi Email:** Periksa kotak masuk email Anda untuk menemukan kode verifikasi (OTP) 6 digit dari AWS. Masukkan kode tersebut ke halaman registrasi dan klik **Verify**.
+4. **Pembuatan Kata Sandi:** Buat kata sandi *Root user* yang kuat (minimum 8 karakter, mencakup kombinasi huruf besar, huruf kecil, angka, dan simbol).
+5. **Informasi Kontak:** Pada halaman *Contact Information*, pilih **Personal - for your own projects** jika digunakan untuk pembelajaran pribadi. Isi formulir alamat, kota, dan kode pos secara akurat.
+6. **Informasi Penagihan:** Masukkan detail kartu kredit atau debit Anda. Masukkan juga alamat penagihan (Billing address). Klik **Verify and Add**.
+7. **Verifikasi Identitas:** Pilih metode verifikasi melalui *Text message (SMS)* atau *Voice call*. Masukkan nomor telepon aktif Anda beserta kode area negara, ketik karakter keamanan (CAPTCHA), lalu klik **Send SMS**. Masukkan kode verifikasi 4 digit yang Anda terima.
+8. **Pemilihan Paket Dukungan:** Pada halaman *Select a Support Plan*, pilih **Basic Support - Free** untuk memastikan Anda tidak dikenakan biaya dukungan teknis (support).
+9. **Penyelesaian:** Klik **Complete sign up**. Tunggu beberapa menit hingga akun diaktivasi (biasanya memakan waktu kurang dari 24 jam).
+10. **Akses Konsol:** Klik **Go to the AWS Management Console** dan lakukan *Sign in* menggunakan email dan sandi *Root user* yang baru saja Anda buat.
+
+## Strategi Penghindaran Tagihan Tak Terduga
+
+Untuk memastikan Anda tetap berada dalam batas Free Tier:
+- **Konfigurasi AWS Budgets:** Segera atur *Zero-Spend Budget* atau *Billing Alarm* melalui layanan AWS Billing untuk mendapatkan notifikasi email saat penggunaan melebihi ambang batas.
+- **Manajemen Sumber Daya:** Matikan (stop) atau hentikan secara permanen (terminate) sumber daya seperti EC2 instances atau RDS databases setelah selesai digunakan.
+- **Pantau Batas Free Tier:** Gunakan halaman penagihan AWS (Billing Dashboard) pada bagian *Free Tier* untuk memonitor persentase penggunaan layanan Anda.
+
+## Konklusi
+
+Dengan akun AWS Free Tier yang telah aktif, Anda memiliki lingkungan yang aman untuk membangun dan menguji infrastruktur cloud tanpa investasi awal. Pastikan untuk selalu memantau pemakaian sumber daya agar terhindar dari biaya tak terduga.

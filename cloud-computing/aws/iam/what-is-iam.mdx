@@ -1,0 +1,30 @@
+---
+title: "Apa itu IAM?"
+description: "Pengenalan mendalam terhadap arsitektur kontrol akses AWS Identity and Access Management (IAM)."
+---
+
+**AWS Identity and Access Management (IAM)** adalah layanan keamanan foundational yang menyediakan manajemen kontrol akses terpusat ke seluruh sumber daya AWS Anda. IAM memfasilitasi autentikasi ("Siapa Anda?") dan otorisasi ("Apa yang boleh Anda lakukan?") secara granular (halus).
+
+## Konsep Dasar dan Pentingnya IAM
+
+Saat Anda pertama kali membuat akun AWS, infrastruktur didirikan menggunakan kredensial tingkat tertinggi yang dikenal sebagai **Root User**. Root user memiliki otorisasi penuh dan tidak terbatas (unrestricted) atas setiap sumber daya di dalam akun, termasuk manajemen tagihan dan penutupan akun. Praktik arsitektur terbaik AWS memandatkan agar kredensial Root User diamankan dengan Multi-Factor Authentication (MFA) dan **tidak pernah digunakan untuk operasi harian**. 
+
+Sebaliknya, IAM harus dimanfaatkan untuk mendelegasikan akses dan membangun infrastruktur keamanan yang kuat dengan fitur-fitur berikut:
+
+1. **Prinsip Hak Akses Terkecil (Least Privilege):** 
+   IAM memungkinkan Anda untuk mengonfigurasi kebijakan akses presisi di mana entitas (orang atau layanan) hanya menerima izin spesifik yang absolut diperlukan untuk mengeksekusi tugas mereka, sehingga meminimalkan *attack surface*.
+2. **Keamanan Manajemen Terpusat (Centralized Control):** 
+   Seluruh kebijakan perizinan, pembuatan kunci akses (access keys), pemutaran kata sandi, dan pengelolaan grup dikoordinasikan dalam satu panel kontrol IAM tunggal.
+3. **Gratis Tanpa Biaya Tambahan:** 
+   IAM adalah lapisan fungsional inti AWS; Anda tidak dikenakan biaya finansial atas penggunaannya, pembuatan peran, atau manajemen kebijakan IAM dalam akun.
+4. **Arsitektur Global (Region-Agnostic):** 
+   Tidak seperti layanan AWS tertentu yang terikat batas geografis wilayah (seperti EC2 yang spesifik pada region *ap-southeast-1*), IAM beroperasi secara global. Modifikasi hak akses langsung dipropagasi dan diterapkan di seluruh region AWS di dunia seketika.
+
+## Komponen Inti IAM
+
+Untuk memahami dan mendesain infrastruktur IAM, Anda harus menguasai empat entitas utama berikut:
+
+1. **IAM Users:** Entitas identitas untuk autentikasi yang merepresentasikan entitas spesifik seperti pengembang, aplikasi eksternal, atau layanan *on-premise*.
+2. **IAM Groups:** Wadah logis yang menampung sekumpulan *IAM Users* untuk mempermudah pendelegasian perizinan kolektif (misal: grup "Administrator" atau "DataAnalyst").
+3. **IAM Roles:** Mekanisme identitas sementara yang tidak menggunakan kredensial statis jangka panjang. IAM Role digunakan untuk mendelegasikan akses secara aman kepada mesin EC2, fungsi Lambda, atau pengguna dari akun AWS terpisah melalui *Assume Role API*.
+4. **IAM Policies:** Dokumen deklaratif (ditulis menggunakan struktur data JSON) yang mendefinisikan batas hak akses (Allow/Deny) yang secara eksplisit diterapkan pada Users, Groups, atau Roles.

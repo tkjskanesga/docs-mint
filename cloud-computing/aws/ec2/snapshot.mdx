@@ -1,0 +1,55 @@
+---
+title: EBS Snapshots
+description: 'Cara mem-backup data pada volume EBS menggunakan fitur Snapshot.'
+---
+
+**Snapshot** adalah mekanisme pencadangan (backup) point-in-time dari EBS Volume Anda. Saat Anda membuat snapshot, AWS akan menyalin data dari EBS dan menyimpannya dengan aman di **Amazon S3**.
+
+### Karakteristik Snapshot:
+1. **Incremental (Inkremental):** Jika hari ini Anda membuat snapshot dari volume berukuran 10 GB, maka 10 GB tersebut akan disimpan utuh. Jika keesokan harinya data Anda bertambah 2 GB dan Anda membuat snapshot lagi, AWS HANYA akan menyimpan selisih 2 GB tersebut. Ini membuat proses backup sangat cepat dan jauh lebih murah.
+2. **Global antar Region:** Snapshot dapat dengan mudah di-copy antar region, misalnya dari Jakarta (`ap-southeast-3`) ke Singapura (`ap-southeast-1`), memberikan perlindungan dari bencana berskala besar (*Disaster Recovery*).
+3. **Membuat AMI:** Anda dapat membuat *Amazon Machine Image* (AMI) dari sebuah Snapshot untuk meluncurkan EC2 instance baru dengan konfigurasi yang sama persis.
+
+## Cara Menggunakan Snapshot
+
+<Tabs>
+  <Tab title="AWS Console">
+    ### Membuat Backup (Snapshot):
+    1. Buka console EC2, di menu kiri pilih **Volumes** (di bawah Elastic Block Store).
+    2. Pilih volume yang ingin Anda *backup*.
+    3. Klik **Actions** > **Create snapshot**.
+    4. Masukkan **Description** (misal: "Backup Database Minggu Ke-1").
+    5. Tambahkan **Tags** jika diperlukan untuk memudahkan identifikasi.
+    6. Klik **Create snapshot**.
+
+    ### Mengembalikan Data (Restore):
+    1. Buka menu **Snapshots** di EC2 Console.
+    2. Pilih snapshot yang ingin di-restore.
+    3. Klik **Actions** > **Create volume from snapshot**.
+    4. Sesuaikan **Availability Zone**, **Size**, dan **Volume Type**.
+    5. Klik **Create volume**.
+    6. Setelah volume baru tercipta, pasang (*attach*) volume tersebut ke EC2 instance Anda.
+  </Tab>
+  <Tab title="AWS CLI">
+    ### Membuat Backup (Snapshot):
+    Jalankan perintah berikut dengan mengganti `vol-1234567890abcdef0` dengan ID volume Anda:
+    ```bash
+    aws ec2 create-snapshot \
+        --volume-id vol-1234567890abcdef0 \
+        --description "Backup Database Minggu Ke-1"
+    ```
+
+    ### Mengembalikan Data (Restore):
+    Buat volume baru dari snapshot:
+    ```bash
+    aws ec2 create-volume \
+        --snapshot-id snap-1234567890abcdef0 \
+        --availability-zone ap-southeast-3a \
+        --volume-type gp3
+    ```
+  </Tab>
+</Tabs>
+
+## Konklusi
+
+Data adalah aset terpenting perusahaan. Mengatur jadwal pengambilan **Snapshot** secara rutin (misalnya menggunakan layanan *AWS Backup* atau fitur *Data Lifecycle Manager*) adalah praktik operasional wajib (Best Practice) bagi setiap *SysAdmin* dan *Cloud Engineer*.

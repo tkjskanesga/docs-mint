@@ -1,0 +1,36 @@
+---
+title: "Dasar-Dasar Docker"
+description: "Mempelajari komponen dasar Docker: Image, Container, Volume, Network, dan perintah-perintah esensialnya."
+---
+
+## Komponen Utama Docker
+
+Sebelum menggunakan Docker, kamu wajib memahami istilah-istilah berikut:
+
+1. **Image:** Cetak biru (*blueprint*) *read-only* dari sebuah aplikasi yang siap dijalankan. Diibaratkan seperti file ISO pada *installer* sistem operasi.
+2. **Container:** Wujud nyata dari sebuah Image yang sedang berjalan. Kamu bisa menjalankan banyak Container dari satu Image yang sama.
+3. **Volume:** Mekanisme untuk menyimpan data secara permanen di luar Container. Karena sifat Container adalah *ephemeral* (data hilang jika dihapus), Volume digunakan untuk mengamankan data seperti basis data (*database*).
+4. **Network:** Jalur komunikasi antar Container. Docker memungkinkan Container untuk saling terhubung dalam satu jaringan tertutup atau diekspos ke publik.
+5. **Docker Compose:** Alat bantu (ditulis dalam format YAML) untuk mendefinisikan dan menjalankan aplikasi Docker yang terdiri dari banyak layanan (*multi-container*).
+
+## Perintah Dasar Docker (CLI)
+
+Berikut adalah perintah-perintah yang paling sering digunakan dalam operasi sehari-hari:
+
+### Melihat Status
+- `docker ps`: Melihat daftar Container yang sedang berjalan.
+- `docker ps -a`: Melihat seluruh daftar Container (baik yang sedang berjalan maupun yang sudah mati).
+- `docker images`: Menampilkan daftar Image yang tersimpan di lokal komputermu.
+
+### Mengelola Container
+- `docker run -d -p 80:80 nginx`: Mengunduh (jika belum ada) dan menjalankan Container *nginx* di latar belakang (`-d`) dan memetakan *port* 80 (`-p`).
+- `docker stop <container_id>`: Menghentikan Container secara halus.
+- `docker rm <container_id>`: Menghapus Container (Container harus dihentikan terlebih dahulu).
+
+### Memantau (Monitoring)
+- `docker logs <container_id>`: Melihat catatan (*logs*) dari aplikasi di dalam Container (sangat berguna untuk mencari error).
+- `docker logs -f <container_id>`: Melihat logs secara *real-time* (mengikuti terus).
+
+### Docker Compose
+- `docker compose up -d`: Membangun dan menyalakan seluruh arsitektur layanan yang ada di file `docker-compose.yml` di latar belakang.
+- `docker compose down`: Menghentikan dan menghapus semua Container beserta jaringannya yang dibuat oleh Compose.

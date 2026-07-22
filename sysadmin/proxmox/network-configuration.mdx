@@ -1,0 +1,56 @@
+---
+title: 'Konfigurasi Jaringan: Bridge dan VLAN'
+description: 'Mengenal dan mengonfigurasi fitur Linux Bridge serta Virtual LAN (VLAN) di lingkungan Proxmox VE.'
+---
+
+## Pengantar Jaringan di Proxmox
+
+Di Proxmox VE, virtualisasi jaringan utamanya menggunakan teknologi **Linux Bridge**. Secara sederhana, *bridge* bertindak layaknya *switch* virtual (vSwitch). VM dan LXC akan terhubung ke *switch* virtual ini agar dapat berkomunikasi dengan jaringan luar melalui kartu antarmuka jaringan fisik (NIC).
+
+Secara bawaan saat instalasi, Proxmox otomatis membuat satu buah *bridge* dengan nama `vmbr0` yang dijembatan (di-*bridge*) ke port NIC pertama (contoh: `eno1` atau `eth0`).
+
+## Membuat dan Mengonfigurasi Linux Bridge
+
+Terkadang kita memiliki server dengan beberapa kartu antarmuka fisik dan ingin memisahkannya untuk berbagai keperluan (misal: satu untuk akses manajemen, satu untuk VM).
+
+Langkah-langkah membuat *bridge* baru:
+
+1. Pilih server Node kamu di panel kiri (contoh: `pve`), lalu masuk ke menu **Network**.
+2. Kamu akan melihat daftar *network device* (NIC fisik) dan *Linux Bridge* yang sudah ada.
+3. Klik tombol **Create** > **Linux Bridge**.
+4. Isi konfigurasi berikut:
+   - **Name**: Biarkan bawaan (misal `vmbr1`).
+   - **IPv4/CIDR** (Opsional): Kosongkan jika *bridge* ini hanya untuk lalu lintas VM, atau isi jika *host* Proxmox juga perlu punya IP di jaringan ini.
+   - **Bridge ports**: Masukkan nama NIC fisik yang *menganggur* (belum dipakai), misalnya `eth1` atau `enp3s0`.
+   - Centang **Autostart** agar *bridge* aktif otomatis saat server nyala.
+   - Centang **VLAN aware** jika kamu berencana melewatkan trafik VLAN pada *bridge* ini.
+5. Klik **Create**.
+6. Konfigurasi jaringan yang baru ditambahkan berstatus *Pending*. Klik tombol **Apply Configuration** di bagian atas untuk menyimpan dan mengaktifkannya tanpa perlu *reboot*.
+
+## Konfigurasi VLAN (Virtual LAN)
+
+VLAN memungkinkan kita untuk memecah satu jaringan fisik menjadi beberapa jaringan logikal yang terpisah. Di Proxmox, ada beberapa cara mengonfigurasi VLAN untuk VM.
+
+### Cara 1: Mengaktifkan VLAN Aware di Bridge (Disarankan)
+
+Ini adalah cara paling fleksibel dan mirip dengan konfigurasi *trunk* pada *switch* fisik.
+
+1. Buka menu **Network** pada Node, klik ganda pada `vmbr0` (atau *bridge* targetmu).
+2. Centang kotak **VLAN aware**, lalu simpan dan klik **Apply Configuration**.
+3. Sekarang, untuk menghubungkan sebuah VM ke VLAN tertentu (misalnya VLAN ID 10):
+   - Masuk ke **Hardware** pada VM yang diinginkan.
+   - Klik ganda pada perangkat **Network Device** (biasanya bernama `net0`).
+   - Pada kolom **VLAN Tag**, masukkan angka VLAN ID (contoh: `10`).
+   - Klik **OK**.
+4. Selesai! Trafik jaringan VM tersebut otomatis akan di-*tag* dengan VLAN 10 oleh Proxmox saat keluar melalui kabel fisik.
+
+### Cara 2: Membuat Antarmuka VLAN Tersendiri
+
+Cara ini berguna jika *host* Proxmox itu sendiri perlu mengakses jaringan VLAN tersebut, misalnya untuk manajemen, koneksi *storage*, atau *cluster heartbeat*.
+
+1. Di menu **Network** pada Node, klik **Create** > **Linux VLAN**.
+2. Isi nama dengan format `<nama-interface-fisik>.<vlan-id>` atau `<nama-bridge>.<vlan-id>`. 
+   - Contoh: `vmbr0.10` untuk membuat akses VLAN 10 di atas *bridge* `vmbr0`.
+3. Isi parameter IP Address/CIDR sesuai dengan blok IP VLAN tersebut (contoh: `192.168.10.2/24`).
+4. Klik **Create** dan tekan **Apply Configuration**.
+5. Kini Proxmox dapat di-*ping* menggunakan IP dari rentang jaringan VLAN 10 tersebut.

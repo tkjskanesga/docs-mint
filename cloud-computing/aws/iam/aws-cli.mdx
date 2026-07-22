@@ -1,0 +1,87 @@
+---
+title: "Menggunakan AWS CLI"
+description: "Panduan instalasi dan konfigurasi AWS Command Line Interface (CLI)."
+---
+
+**AWS CLI (Command Line Interface)** adalah utilitas baris perintah terpadu yang memungkinkan administrator dan *developer* untuk mengelola, mengotomatisasi, dan berinteraksi dengan layanan AWS secara langsung dari terminal lokal. Pendekatan CLI sangat esensial untuk implementasi *Infrastructure as Code* (IaC) dan skrip otomatisasi.
+
+## Tahap 1: Pembuatan Access Key IAM
+
+Untuk mengautentikasi CLI dengan akun AWS Anda, diperlukan kredensial terprogram (Programmatic Access).
+
+1. Akses **AWS Management Console** dan navigasi ke layanan **IAM**.
+2. Di panel navigasi kiri, pilih **Users**, lalu klik nama pengguna IAM Anda.
+3. Buka tab **Security credentials**.
+4. Di bagian *Access keys*, klik tombol **Create access key**.
+5. Pilih *Use case* **Command Line Interface (CLI)**, setujui peringatan keamanan, dan klik **Next**.
+6. (Opsional) Tambahkan tag deskripsi, lalu klik **Create access key**.
+7. Klik **Download .csv file** untuk menyimpan `Access Key ID` dan `Secret Access Key`. **Perhatian:** Ini adalah satu-satunya kesempatan untuk melihat kredensial ini. Jangan pernah melakukan komit kredensial ini ke repositori publik (misal: GitHub).
+
+## Tahap 2: Instalasi AWS CLI
+
+<Tabs>
+  <Tab title="Windows">
+    1. Unduh installer AWS CLI MSI untuk Windows: [AWS CLI MSI installer](https://awscli.amazonaws.com/AWSCLIV2.msi).
+    2. Jalankan *installer* dan ikuti petunjuk pada layar.
+    3. Setelah instalasi selesai, buka **Command Prompt (cmd)** atau **PowerShell**.
+    4. Verifikasi instalasi dengan menjalankan perintah:
+       ```cmd
+       aws --version
+       ```
+  </Tab>
+  <Tab title="macOS">
+    1. Unduh paket instalasi pkg untuk macOS: [AWS CLI pkg](https://awscli.amazonaws.com/AWSCLIV2.pkg).
+    2. Jalankan file yang diunduh dan ikuti instruksi instalasi standar macOS.
+    3. Buka aplikasi **Terminal**.
+    4. Verifikasi instalasi dengan menjalankan perintah:
+       ```bash
+       aws --version
+       ```
+  </Tab>
+  <Tab title="Linux">
+    1. Buka terminal Anda dan jalankan perintah berikut untuk mengunduh arsip instalasi:
+       ```bash
+       curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+       ```
+    2. Ekstrak arsip (pastikan `unzip` telah terinstal):
+       ```bash
+       unzip awscliv2.zip
+       ```
+    3. Jalankan skrip instalasi dengan hak akses `sudo`:
+       ```bash
+       sudo ./aws/install
+       ```
+    4. Verifikasi instalasi:
+       ```bash
+       aws --version
+       ```
+  </Tab>
+</Tabs>
+
+## Tahap 3: Konfigurasi Kredensial
+
+Jalankan perintah berikut di terminal Anda untuk mengonfigurasi profil AWS:
+
+```bash
+aws configure
+```
+
+Anda akan diminta untuk memasukkan empat parameter konfigurasi. Masukkan informasi yang Anda dapatkan dari file CSV pada Tahap 1:
+
+1. **AWS Access Key ID**: Masukkan *Access Key ID* Anda.
+2. **AWS Secret Access Key**: Masukkan *Secret Access Key* Anda.
+3. **Default region name**: Tentukan region utama yang akan dituju (misal: `ap-southeast-1` untuk region Singapore, atau `ap-southeast-3` untuk region Jakarta).
+4. **Default output format**: Ketik `json` (dapat berupa `json`, `text`, atau `table`).
+
+## Tahap 4: Verifikasi Koneksi
+
+Lakukan pengujian koneksi dengan mengeksekusi panggilan API sederhana ke AWS. Perintah berikut akan mencetak daftar *bucket* Amazon S3 di akun Anda:
+
+```bash
+aws s3 ls
+```
+*Jika output tidak menampilkan pesan error (baik menampilkan daftar bucket atau kosong jika belum ada bucket), maka CLI telah berhasil terautentikasi dan terhubung.*
+
+## Konklusi
+
+AWS CLI kini telah terinstal dan terkonfigurasi pada mesin lokal Anda. Dengan fondasi ini, Anda siap untuk mengelola sumber daya awan secara imperatif dan mengintegrasikan AWS ke dalam *pipeline* CI/CD atau alat otomatisasi seperti Terraform.

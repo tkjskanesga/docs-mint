@@ -1,0 +1,54 @@
+---
+title: Amazon CloudFront
+description: 'Mendistribusikan konten dengan Amazon CloudFront.'
+---
+
+Amazon CloudFront adalah layanan Content Delivery Network (CDN) yang ditawarkan oleh AWS. CloudFront bekerja secara erat dengan Amazon S3 (dan layanan AWS lainnya) untuk mengirimkan data, video, aplikasi, dan API ke pelanggan di seluruh dunia dengan latensi yang sangat rendah.
+
+## Mengapa Menggunakan CloudFront?
+
+Jika Anda meng-host gambar website di bucket S3 di Amerika Serikat dan pengguna Anda berada di Indonesia, proses muat akan lambat jika pengguna mengakses langsung dari S3. 
+
+CloudFront menyelesaikan masalah ini dengan menyimpan salinan (cache) dari gambar di *Edge Locations* (pusat data CloudFront) yang tersebar di seluruh dunia. Saat pengguna di Indonesia mengakses website, CloudFront menyajikan konten langsung dari *Edge Location* terdekat, sehingga meminimalkan latensi.
+
+## Fitur Utama
+
+- **Global Edge Network**: Memiliki ratusan *Edge Location* di seluruh dunia.
+- **Keamanan Tingkat Lanjut**: Perlindungan terhadap serangan DDoS tingkat jaringan dan integrasi langsung dengan AWS WAF (Web Application Firewall).
+- **HTTPS Custom**: Mendukung sertifikat SSL/TLS kustom menggunakan AWS Certificate Manager (ACM) untuk keamanan enkripsi *end-to-end*.
+- **Kontrol Caching**: Mengatur lama waktu penyimpanan file (*Time to Live* / TTL) di *Edge Location*.
+
+## Arsitektur CloudFront dengan S3
+
+Sangat disarankan untuk memposisikan CloudFront di depan S3 Bucket.
+
+1. Pengguna mengirim *request* konten ke URL CloudFront.
+2. CloudFront mengecek ketersediaan konten di dalam *cache*.
+3. **Cache Miss**: Jika konten belum ada, CloudFront akan mengambilnya dari S3 Bucket (*Origin*), lalu menyimpannya di *cache* sebelum dikirimkan ke pengguna.
+4. **Cache Hit**: Permintaan berikutnya terhadap konten yang sama akan langsung dilayani dari *cache* CloudFront tanpa perlu mengakses S3.
+
+## Konfigurasi Dasar (S3 Origin)
+
+Berikut adalah cara mengonfigurasi CloudFront dengan S3 sebagai *origin*.
+
+<Tabs>
+  <Tab title="AWS Console">
+    1. Buka layanan **CloudFront** di konsol AWS.
+    2. Klik **Create Distribution**.
+    3. Pada bagian **Origin domain**, pilih S3 bucket Anda dari *dropdown*.
+    4. Di bagian **Origin access**, pilih **Origin access control settings (recommended)** untuk memblokir akses langsung ke S3 dan hanya mengizinkan CloudFront.
+    5. Konfigurasikan **Default cache behavior** sesuai kebutuhan aplikasi (contoh: *Redirect HTTP to HTTPS*).
+    6. Klik **Create distribution**.
+    7. Perbarui **S3 Bucket Policy** sesuai yang dihasilkan oleh CloudFront agar CloudFront memiliki izin untuk mengambil file dari bucket.
+  </Tab>
+  <Tab title="AWS CLI">
+    1. Buat *Origin Access Control* (OAC):
+       ```bash
+       aws cloudfront create-origin-access-control --origin-access-control-config "Name=OAC,Description=OAC for S3,SigningProtocol=sigv4,SigningBehavior=always,OriginType=s3"
+       ```
+    2. Buat *CloudFront Distribution* menggunakan file konfigurasi JSON:
+       ```bash
+       aws cloudfront create-distribution --distribution-config file://cloudfront-config.json
+       ```
+  </Tab>
+</Tabs>

@@ -1,0 +1,76 @@
+---
+title: "Docker Swarm (Orkestrasi)"
+description: "Pengenalan orkestrasi Container dengan Docker Swarm, deployment aplikasi, skalabilitas, dan rollback."
+---
+
+## Apa itu Docker Swarm?
+
+Ketika aplikasi mulai membesar, menjalankan semuanya dalam satu server menggunakan `docker compose` tidak lagi cukup. Jika server tersebut mati, aplikasi akan *down*. 
+
+**Docker Swarm** adalah alat orkestrasi bawaan dari Docker untuk menggabungkan banyak server Docker (Nodes) menjadi satu kesatuan (*Cluster*). Swarm bertugas mendistribusikan Container secara merata ke seluruh server, memastikan ketersediaan tinggi (*High Availability*), dan menyediakan mekanisme perbaikan mandiri (*Self-Healing*).
+
+Dalam Swarm, ada dua peran:
+1. **Manager Node:** Mengatur kluster, menyimpan konfigurasi, dan mendistribusikan tugas.
+2. **Worker Node:** Murni bertugas menjalankan Container yang diperintahkan oleh Manager.
+
+## Inisiasi Swarm
+
+### Langkah Konfigurasi
+1. Masuk ke server utama (yang akan jadi Manager) dan jalankan:
+   ```bash
+   docker swarm init --advertise-addr <ip-server-manager>
+   ```
+2. Outputnya akan menampilkan perintah `docker swarm join` beserta *token*.
+3. Salin perintah tersebut dan tempel (paste) di terminal server-server Worker untuk menggabungkannya ke dalam *cluster*.
+
+## Deploy Aplikasi di Swarm (Stack & Service)
+
+Di Docker Swarm, kita tidak menggunakan istilah `docker run` biasa, melainkan mendeploy sekumpulan layanan (*Service*) dalam bentuk **Stack**. Kita menggunakan konfigurasi YAML yang mirip dengan Docker Compose.
+
+```bash
+docker stack deploy -c docker-compose.yml nama_stack_aplikasi
+```
+
+### Konfigurasi Penting (Deploy Key)
+Di file YAML, terdapat bagian `deploy` khusus untuk Swarm.
+
+- **Restart Policy:** Menentukan kapan Container harus otomatis di-*restart* jika *crash*.
+- **Replicas:** Jumlah salinan Container. (Misal diatur `3`, maka Swarm akan menyebar 3 Container aplikasi ke berbagai Node).
+
+Contoh YAML:
+```yaml
+services:
+  web:
+    image: nginx:latest
+    environment:
+      - PORT=80
+    deploy:
+      replicas: 3
+      restart_policy:
+        condition: on-failure
+```
+
+## Operasional Swarm
+
+### Skalabilitas dan Update
+Untuk mengubah konfigurasi lingkungan (ENV) atau memperbarui versi Image tanpa menimbulkan waktu henti (*Zero Downtime*):
+```bash
+docker service update --image nginx:1.21 --env-add "DEBUG=true" nama_stack_web
+```
+
+### Rollback (Kembali ke Versi Sebelumnya)
+Jika pembaruan sistem menimbulkan masalah (*bug*), Swarm memungkinkan untuk mundur (*backward*) ke kondisi konfigurasi sebelumnya:
+```bash
+docker service update --rollback nama_stack_web
+```
+
+### Menghentikan dan Migrasi
+- Untuk mematikan sebuah node agar tidak lagi menerima tugas Container (misal server mau dimatikan untuk *maintenance*):
+  ```bash
+  docker node update --availability drain <nama_node>
+  ```
+  Ini disebut **Migrasi**, karena Swarm akan otomatis memindahkan semua Container di node tersebut ke node lain yang masih aktif.
+- Untuk menghentikan seluruh layanan aplikasi (*Stack*):
+  ```bash
+  docker stack rm nama_stack_aplikasi
+  ```

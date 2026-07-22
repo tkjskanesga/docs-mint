@@ -1,0 +1,46 @@
+---
+title: AWS PrivateLink
+description: 'Panduan teknis dan konfigurasi AWS PrivateLink.'
+---
+
+AWS PrivateLink menyediakan konektivitas privat yang sangat aman antara VPC, layanan AWS, dan aplikasi jaringan on-premises Anda, tanpa mengekspos lalu lintas jaringan ke internet publik. PrivateLink menyederhanakan arsitektur jaringan dan mengurangi risiko paparan keamanan karena lalu lintas berjalan melalui jaringan AWS.
+
+## Fungsionalitas dan Arsitektur
+
+- **VPC Endpoints**: PrivateLink menggunakan VPC Endpoints (khususnya Interface Endpoints) yang merupakan antarmuka jaringan elastis (ENI) dengan alamat IP privat dari subnet Anda.
+- **Endpoint Services**: Anda dapat menyediakan layanan Anda sendiri menggunakan Network Load Balancer (NLB) dan menjadikannya sebagai Endpoint Service yang dapat diakses oleh VPC lain melalui PrivateLink.
+- **Keamanan**: Lalu lintas tidak pernah melewati internet publik, mencegah ancaman eksternal. Anda juga dapat menggunakan Security Groups dan VPC Endpoint Policies untuk mengontrol akses.
+
+## Langkah Konfigurasi
+
+Berikut adalah langkah-langkah untuk membuat Interface Endpoint menggunakan AWS PrivateLink:
+
+<Tabs>
+  <Tab title="AWS Console">
+    1. Buka konsol Amazon VPC di `https://console.aws.amazon.com/vpc/`.
+    2. Pada panel navigasi, pilih **Endpoints**.
+    3. Klik tombol **Create endpoint**.
+    4. Pada bagian **Service category**, pilih **AWS services** (atau kategori lain sesuai kebutuhan).
+    5. Pada kotak pencarian **Services**, pilih layanan yang diinginkan (contoh: `com.amazonaws.us-east-1.s3`).
+    6. Pilih **VPC** tempat endpoint akan dibuat.
+    7. Pilih **Subnets** di setiap Availability Zone yang ingin Anda gunakan. AWS akan membuat Endpoint Network Interface (ENI) di subnet tersebut.
+    8. Pilih **Security group** untuk mengontrol lalu lintas ke ENI tersebut.
+    9. Klik **Create endpoint**.
+  </Tab>
+  <Tab title="AWS CLI">
+    1. Buat VPC endpoint:
+       ```bash
+       aws ec2 create-vpc-endpoint \
+         --vpc-id vpc-1a2b3c4d \
+         --service-name com.amazonaws.us-east-1.sns \
+         --vpc-endpoint-type Interface \
+         --subnet-ids subnet-11223344 \
+         --security-group-ids sg-55667788
+       ```
+    2. Verifikasi status endpoint:
+       ```bash
+       aws ec2 describe-vpc-endpoints \
+         --vpc-endpoint-ids vpce-1234567890abcdef0
+       ```
+  </Tab>
+</Tabs>
